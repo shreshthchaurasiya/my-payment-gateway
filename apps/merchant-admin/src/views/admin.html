@@ -203,51 +203,372 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      margin: 0;
+      padding: 0;
       overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Sticky Header */
-    header {
+    /* Cashfree / Razorpay Left Sidebar */
+    .cf-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--header-bg);
+      border-right: 1px solid var(--border);
+      z-index: 1050;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, border-color 0.25s ease;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+    }
+
+    [data-theme="dark"] .cf-sidebar {
+      background: #0b1120;
+      border-right-color: #1e293b;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .cf-sidebar-header {
+      padding: 1.15rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: inherit;
+    }
+
+    .cf-brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+    }
+
+    .cf-brand-icon {
+      font-size: 1.4rem;
+      filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.3));
+    }
+
+    .cf-brand-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cf-brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .cf-brand-sub {
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    [data-theme="dark"] .cf-brand-sub {
+      color: #38bdf8;
+    }
+
+    .cf-sidebar-close-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      line-height: 1;
+    }
+    .cf-sidebar-close-btn:hover {
+      background: var(--bg-surface);
+      color: var(--text);
+    }
+
+    .cf-sidebar-env-badge {
+      margin: 0.75rem 0.85rem 0.25rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+    }
+    .cf-sidebar-env-badge:hover {
+      border-color: var(--primary);
+      color: var(--text);
+      background: var(--primary-light);
+    }
+
+    .cf-env-dot {
+      color: #10b981;
+      margin-right: 0.35rem;
+      font-size: 0.8rem;
+    }
+
+    .cf-env-switch-hint {
+      font-size: 0.68rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .cf-sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .cf-sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .cf-sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+
+    .cf-nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .cf-nav-group-title {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      padding: 0.25rem 0.6rem 0.35rem;
+    }
+
+    .cf-nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      position: relative;
+    }
+
+    .cf-nav-item:hover {
+      color: var(--text-heading);
+      background: var(--bg-surface);
+      transform: translateX(2px);
+    }
+
+    [data-theme="dark"] .cf-nav-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .cf-nav-item.active {
+      color: var(--primary);
+      background: var(--primary-light);
+      font-weight: 700;
+      border-color: rgba(37, 99, 235, 0.15);
+    }
+
+    .cf-nav-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 15%;
+      height: 70%;
+      width: 3.5px;
+      background: var(--primary);
+      border-radius: 0 4px 4px 0;
+    }
+
+    [data-theme="dark"] .cf-nav-item.active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    [data-theme="dark"] .cf-nav-item.active::before {
+      background: #38bdf8;
+    }
+
+    .cf-nav-icon {
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .cf-nav-label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cf-sidebar-footer {
+      padding: 0.75rem 0.75rem;
+      border-top: 1px solid var(--border);
+      background: inherit;
+    }
+
+    .cf-user-card {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.65rem;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .cf-user-card:hover {
+      border-color: var(--primary);
+      background: var(--bg-card);
+    }
+
+    .cf-user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .cf-user-info {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cf-user-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .cf-user-vpa {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Content Wrapper */
+    .cf-main-wrapper {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      background: var(--bg);
+    }
+
+    /* Topbar Header */
+    .cf-topbar {
       background: var(--header-bg);
       border-bottom: 1px solid var(--header-border);
-      padding: 0.85rem 1.75rem;
+      padding: 0.75rem 1.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 990;
       backdrop-filter: blur(12px);
+      gap: 1rem;
     }
 
-    .brand-group {
+    .cf-topbar-left {
       display: flex;
       align-items: center;
       gap: 0.85rem;
     }
 
-    .brand-title {
-      font-size: 1.25rem;
-      font-weight: 900;
-      color: var(--header-title);
-      display: flex;
+    .cf-hamburger-btn {
+      display: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
-      letter-spacing: -0.02em;
+      justify-content: center;
+      gap: 4px;
+      padding: 0;
+      transition: all 0.2s;
+    }
+    .cf-hamburger-btn:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
     }
 
-    .brand-badge {
-      font-size: 0.72rem;
+    .cf-hamburger-line {
+      width: 17px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .cf-breadcrumb-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .cf-breadcrumb-root {
+      color: var(--text-dim);
+    }
+    .cf-breadcrumb-sep {
+      color: var(--border-hover);
+      font-size: 0.75rem;
+    }
+    .cf-breadcrumb-sec {
+      color: var(--text-muted);
+    }
+    .cf-breadcrumb-curr {
+      color: var(--text-heading);
       font-weight: 700;
-      padding: 0.2rem 0.55rem;
-      border-radius: 9999px;
-      background: var(--badge-info-bg);
-      color: var(--badge-info-text);
-      border: 1px solid var(--badge-info-border);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
     .header-quick-stats {
@@ -336,73 +657,19 @@
     }
 
     @keyframes pulseAnim {
-
-      0%,
-      100% {
+      0%, 100% {
         opacity: 1;
         transform: scale(1);
       }
-
       50% {
         opacity: 0.4;
         transform: scale(0.85);
       }
     }
 
-    /* Primary Navigation Bar (3 Sections) */
-    .main-nav-bar {
-      background: var(--nav-bg);
-      border-bottom: 1px solid var(--nav-border);
-      display: flex;
-      gap: 0.5rem;
-      padding: 0 1.75rem;
-      overflow-x: auto;
-      position: sticky;
-      top: 57px;
-      z-index: 999;
-    }
-
-    .main-nav-btn {
-      padding: 0.95rem 1.4rem;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      font-weight: 800;
-      color: var(--text-muted);
-      border-bottom: 3px solid transparent;
-      white-space: nowrap;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      font-size: 0.92rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .main-nav-btn:hover {
-      color: var(--text);
-      background: var(--primary-light);
-    }
-
-    .main-nav-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      background: var(--primary-light);
-    }
-
-    [data-theme="dark"] .main-nav-btn.active {
-      color: #38bdf8;
-      border-bottom-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.08);
-    }
-
-    /* Secondary Sub-Nav Pills */
+    /* Secondary Sub-Nav Pills (Hidden - replaced by Cashfree/Razorpay sidebar) */
     .sub-nav-bar {
-      background: var(--subnav-bg);
-      border-bottom: 1px solid var(--subnav-border);
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.65rem 1.75rem;
-      overflow-x: auto;
+      display: none !important;
     }
 
     .sub-nav-pill {
@@ -431,6 +698,86 @@
       background: var(--primary);
       border-color: var(--primary);
       box-shadow: 0 2px 10px var(--primary-glow);
+    }
+
+    /* Mobile Backdrop */
+    .cf-sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1040;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    /* Responsive Breakpoints: Tablet & Mobile */
+    @media (max-width: 1024px) {
+      .cf-sidebar {
+        transform: translateX(-100%);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      body.sidebar-open .cf-sidebar {
+        transform: translateX(0);
+      }
+
+      body.sidebar-open .cf-sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .cf-sidebar-close-btn {
+        display: inline-flex;
+      }
+
+      .cf-main-wrapper {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .cf-hamburger-btn {
+        display: flex;
+      }
+
+      .cf-topbar {
+        padding: 0.65rem 1rem;
+      }
+
+      .header-quick-stats {
+        gap: 0.45rem;
+      }
+
+      .sub-nav-bar {
+        padding: 0.5rem 1rem;
+      }
+
+      main {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cf-breadcrumb-wrap {
+        font-size: 0.75rem;
+      }
+      .cf-breadcrumb-sec {
+        display: none;
+      }
+      .header-quick-stats {
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .theme-mode-pill,
+      .store-switch-badge,
+      #accountVpaDisplay {
+        font-size: 0.68rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
     }
 
     main {
@@ -976,79 +1323,210 @@
 
 <body>
 
-  <!-- TOP HEADER -->
-  <header>
-    <div class="brand-group">
-      <div class="brand-title">
-        <span>🛡️ YOUPI PG</span>
+  <!-- Mobile Drawer Backdrop -->
+  <div id="cfSidebarBackdrop" class="cf-sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
+  <!-- Cashfree / Razorpay Left Sidebar -->
+  <aside id="cfSidebar" class="cf-sidebar">
+    <div class="cf-sidebar-header">
+      <div class="cf-brand-logo">
+        <span class="cf-brand-icon">🛡️</span>
+        <div class="cf-brand-info">
+          <span class="cf-brand-title">YOUPI PG</span>
+          <span class="cf-brand-sub">FinTech Dashboard</span>
+        </div>
       </div>
-      <span class="brand-badge">Merchant &amp; Supervisor Hub</span>
+      <button class="cf-sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close Sidebar">✕</button>
     </div>
 
-    <div class="header-quick-stats">
-      <!-- Real Light / Dark Mode Toggle Pill -->
-      <div class="theme-mode-pill" id="headerThemeBadge" onclick="toggleThemeManual()"
-        title="Auto-switches to Dark Mode in Developer Hub and Bright White Mode in Operations &amp; Store Settings. Click to toggle manually anytime.">
-        <span id="headerThemeIcon">☀️</span>
-        <span id="headerThemeText">Bright White</span>
-      </div>
-
-      <!-- YOUPI Store Port 5000 Switch Badge -->
-      <div class="store-switch-badge is-offline" id="headerStoreBadge" onclick="toggleYoupiStore()"
-        title="Click to 1-Click Enable/Disable YOUPI Showcase Store on Port 5000">
-        <span id="headerStoreDot">●</span>
-        <span id="headerStoreText">Store (5000): Checking...</span>
-      </div>
-
-      <!-- Active VPA Display -->
-      <span class="badge badge-info" id="accountVpaDisplay" style="cursor:pointer;"
-        onclick="switchSection('storeSettings', 'subTabVpa')">
-        VPA: Loading...
+    <!-- Quick Environment & Search Box -->
+    <div class="cf-sidebar-env-badge" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+      <span style="display:flex; align-items:center;">
+        <span class="cf-env-dot">●</span>
+        <span id="sidebarEnvText">ENV: LOCALHOST</span>
       </span>
+      <span class="cf-env-switch-hint">Tunnel ↗</span>
+    </div>
 
-      <!-- Environment Mode -->
-      <div
-        style="display:flex; align-items:center; gap:0.4rem; background:var(--bg-card); padding:0.3rem 0.75rem; border-radius:9999px; border:1px solid var(--border); cursor:pointer;"
-        onclick="switchSection('developerHub', 'subViewDevCloudflare')">
-        <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">ENV:</span>
-        <span class="badge badge-info" id="headerEnvBadge" style="font-size:0.72rem; padding:0.15rem 0.5rem;">💻
-          LOCALHOST</span>
+    <!-- Navigation Scroll Container -->
+    <div class="cf-sidebar-nav">
+      <!-- Section 1: Operations -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>OPERATIONS</span>
+        </div>
+        <button class="cf-nav-item active" data-sec="operations" data-sub="subViewOpsLive" onclick="navigateTo('operations', 'subViewOpsLive')">
+          <span class="cf-nav-icon">📊</span>
+          <span class="cf-nav-label">Live Monitor &amp; Slots</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsTransactions" onclick="navigateTo('operations', 'subViewOpsTransactions')">
+          <span class="cf-nav-icon">💳</span>
+          <span class="cf-nav-label">Transactions Ledger</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsCounter" onclick="navigateTo('operations', 'subViewOpsCounter')">
+          <span class="cf-nav-icon">🏪</span>
+          <span class="cf-nav-label">Counter Desk (POS)</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsObservers" onclick="navigateTo('operations', 'subViewOpsObservers')">
+          <span class="cf-nav-icon">📡</span>
+          <span class="cf-nav-label">Payment Observers</span>
+        </button>
       </div>
 
-      <!-- Live Polling Indicator -->
-      <div class="live-pulse-badge">
-        <div class="pulse-dot"></div>
-        <span>Live Syncing</span>
+      <!-- Section 2: Store & Checkout -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>STORE &amp; SETTINGS</span>
+        </div>
+        <button class="cf-nav-item" data-sec="storeSettings" data-sub="subViewStoreBrand" onclick="navigateTo('storeSettings', 'subViewStoreBrand')">
+          <span class="cf-nav-icon">🎨</span>
+          <span class="cf-nav-label">Brand &amp; Checkout Look</span>
+        </button>
+        <button class="cf-nav-item" data-sec="storeSettings" data-sub="subViewStoreVpa" onclick="navigateTo('storeSettings', 'subViewStoreVpa')">
+          <span class="cf-nav-icon">⚡</span>
+          <span class="cf-nav-label">Receiving VPAs</span>
+        </button>
+        <button class="cf-nav-item" data-sec="storeSettings" data-sub="subViewStoreModes" onclick="navigateTo('storeSettings', 'subViewStoreModes')">
+          <span class="cf-nav-icon">🏬</span>
+          <span class="cf-nav-label">Selling Modes</span>
+        </button>
+      </div>
+
+      <!-- Section 3: Developer & Infrastructure Hub -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>DEVELOPER HUB</span>
+        </div>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevSimulator" onclick="navigateTo('developerHub', 'subViewDevSimulator')">
+          <span class="cf-nav-icon">🎮</span>
+          <span class="cf-nav-label">Payment Simulator</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevWebhooks" onclick="navigateTo('developerHub', 'subViewDevWebhooks')">
+          <span class="cf-nav-icon">🔐</span>
+          <span class="cf-nav-label">Webhooks &amp; Secrets</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevAndroid" onclick="navigateTo('developerHub', 'subViewDevAndroid')">
+          <span class="cf-nav-icon">📱</span>
+          <span class="cf-nav-label">Android SMS Gateway</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevProtocols" onclick="navigateTo('developerHub', 'subViewDevProtocols')">
+          <span class="cf-nav-icon">📧</span>
+          <span class="cf-nav-label">Gmail &amp; WhatsApp API</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevCloudflare" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+          <span class="cf-nav-icon">☁️</span>
+          <span class="cf-nav-label">Cloudflare Tunnel</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevSupervisor" onclick="navigateTo('developerHub', 'subViewDevSupervisor')">
+          <span class="cf-nav-icon">🖥️</span>
+          <span class="cf-nav-label">System Supervisor</span>
+        </button>
+      </div>
+
+      <!-- Section 4: Risk & Security -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>RISK &amp; SECURITY</span>
+        </div>
+        <button class="cf-nav-item" data-sec="security" data-sub="subViewSecBanned" onclick="navigateTo('security', 'subViewSecBanned')">
+          <span class="cf-nav-icon">🚫</span>
+          <span class="cf-nav-label">Banned Users</span>
+        </button>
+        <button class="cf-nav-item" data-sec="security" data-sub="subViewSecEvents" onclick="navigateTo('security', 'subViewSecEvents')">
+          <span class="cf-nav-icon">🚨</span>
+          <span class="cf-nav-label">Security Events</span>
+        </button>
+        <button class="cf-nav-item" data-sec="security" data-sub="subViewSecHistory" onclick="navigateTo('security', 'subViewSecHistory')">
+          <span class="cf-nav-icon">📜</span>
+          <span class="cf-nav-label">Ban Audit History</span>
+        </button>
       </div>
     </div>
-  </header>
 
-  <!-- MAIN NAVIGATION BAR: 3 HIGH-LEVEL SECTIONS -->
-  <nav class="main-nav-bar">
-    <button class="main-nav-btn active" id="mainNavOperations" onclick="switchSection('operations')">
-      <span>🏪</span>
-      <span>Daily Merchant Operations</span>
-    </button>
-    <button class="main-nav-btn" id="mainNavStoreSettings" onclick="switchSection('storeSettings')">
-      <span>⚙️</span>
-      <span>Store Settings</span>
-    </button>
-    <button class="main-nav-btn" id="mainNavDeveloperHub" onclick="switchSection('developerHub')">
-      <span>🛠️</span>
-      <span>Developer &amp; Infrastructure Hub</span>
-    </button>
-    <button class="main-nav-btn" id="mainNavSecurity" onclick="switchSection('security')">
-      <span>🛡️</span>
-      <span>Security</span>
-    </button>
-  </nav>
+    <!-- Sidebar Footer -->
+    <div class="cf-sidebar-footer">
+      <div class="cf-user-card" onclick="navigateTo('storeSettings', 'subViewStoreVpa')">
+        <div class="cf-user-avatar">⚡</div>
+        <div class="cf-user-info">
+          <span class="cf-user-label">Active Receiving VPA</span>
+          <span class="cf-user-vpa" id="sidebarVpaVal">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </aside>
 
-  <!-- SECONDARY SUB-NAVIGATION BAR (Dynamically adapts per section) -->
-  <nav class="sub-nav-bar" id="subNavBar">
-    <!-- Filled dynamically or toggled based on current section -->
-  </nav>
+  <!-- Main Content Wrapper (Shifted right on desktop, full width on mobile/tablet) -->
+  <div class="cf-main-wrapper">
+    <!-- Topbar Header -->
+    <header class="cf-topbar">
+      <div class="cf-topbar-left">
+        <!-- Hamburger button for mobile / tablet -->
+        <button id="cfMobileToggleBtn" class="cf-hamburger-btn" onclick="toggleMobileSidebar()" aria-label="Toggle Menu">
+          <span class="cf-hamburger-line"></span>
+          <span class="cf-hamburger-line"></span>
+          <span class="cf-hamburger-line"></span>
+        </button>
 
-  <main>
+        <div class="cf-breadcrumb-wrap">
+          <span class="cf-breadcrumb-root">YOUPI</span>
+          <span class="cf-breadcrumb-sep">/</span>
+          <span class="cf-breadcrumb-sec" id="cfBreadcrumbSec">Daily Operations</span>
+          <span class="cf-breadcrumb-sep">/</span>
+          <span class="cf-breadcrumb-curr" id="cfBreadcrumbCurr">Live Monitor &amp; Slots</span>
+        </div>
+      </div>
+
+      <div class="header-quick-stats">
+        <!-- Real Light / Dark Mode Toggle Pill -->
+        <div class="theme-mode-pill" id="headerThemeBadge" onclick="toggleThemeManual()"
+          title="Auto-switches to Dark Mode in Developer Hub and Bright White Mode in Operations &amp; Store Settings. Click to toggle manually anytime.">
+          <span id="headerThemeIcon">☀️</span>
+          <span id="headerThemeText">Bright White</span>
+        </div>
+
+        <!-- YOUPI Store Port 5000 Switch Badge -->
+        <div class="store-switch-badge is-offline" id="headerStoreBadge" onclick="toggleYoupiStore()"
+          title="Click to 1-Click Enable/Disable YOUPI Showcase Store on Port 5000">
+          <span id="headerStoreDot">●</span>
+          <span id="headerStoreText">Store (5000): Checking...</span>
+        </div>
+
+        <!-- Active VPA Display -->
+        <span class="badge badge-info" id="accountVpaDisplay" style="cursor:pointer;"
+          onclick="navigateTo('storeSettings', 'subViewStoreVpa')">
+          VPA: Loading...
+        </span>
+
+        <!-- Environment Mode -->
+        <div
+          style="display:flex; align-items:center; gap:0.4rem; background:var(--bg-card); padding:0.3rem 0.75rem; border-radius:9999px; border:1px solid var(--border); cursor:pointer;"
+          onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+          <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">ENV:</span>
+          <span class="badge badge-info" id="headerEnvBadge" style="font-size:0.72rem; padding:0.15rem 0.5rem;">💻 LOCALHOST</span>
+        </div>
+
+        <!-- Live Polling Indicator -->
+        <div class="live-pulse-badge">
+          <div class="pulse-dot"></div>
+          <span>Live Syncing</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hidden compatibility buttons for #mainNavOperations etc so any code targeting them still works -->
+    <nav class="main-nav-bar" style="display:none;" aria-hidden="true">
+      <button class="main-nav-btn active" id="mainNavOperations" onclick="switchSection('operations')"></button>
+      <button class="main-nav-btn" id="mainNavStoreSettings" onclick="switchSection('storeSettings')"></button>
+      <button class="main-nav-btn" id="mainNavDeveloperHub" onclick="switchSection('developerHub')"></button>
+      <button class="main-nav-btn" id="mainNavSecurity" onclick="switchSection('security')"></button>
+    </nav>
+
+    <!-- SECONDARY SUB-NAVIGATION BAR (Hidden - replaced by Cashfree/Razorpay sidebar) -->
+    <nav class="sub-nav-bar" id="subNavBar" style="display:none;" aria-hidden="true">
+      <!-- Filled dynamically or toggled based on current section -->
+    </nav>
+
+    <main>
 
     <!-- ========================================================================= -->
     <!-- SECTION 1: DAILY MERCHANT OPERATIONS                                      -->
@@ -3144,6 +3622,7 @@
     </div>
 
   </main>
+  </div>
 
   <!-- Gmail Setup Guide Modal (Exact 15-Step Instructions & Refresh Token Guide) -->
   <div id="gmailGuideModal" class="modal-overlay" hidden>
@@ -3519,6 +3998,63 @@
       showAdminToast(`Switched to ${next === 'dark' ? 'Real Dark Mode' : 'Bright White Mode'}`);
     }
 
+    // --- CASHFREE / RAZORPAY NAVIGATION CONTROLLERS ---
+    function toggleMobileSidebar() {
+      document.body.classList.toggle('sidebar-open');
+    }
+
+    function closeMobileSidebar() {
+      document.body.classList.remove('sidebar-open');
+    }
+
+    function navigateTo(sectionId, subViewId) {
+      switchSection(sectionId, subViewId);
+      closeMobileSidebar();
+    }
+
+    function updateSidebarActiveItem(sectionId, subViewId) {
+      document.querySelectorAll('.cf-nav-item').forEach(item => {
+        const itemSec = item.getAttribute('data-sec');
+        const itemSub = item.getAttribute('data-sub');
+        if (itemSec === sectionId && (!subViewId || itemSub === subViewId)) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    function updateBreadcrumbs(sectionId, subViewId) {
+      const secNames = {
+        operations: 'Daily Operations',
+        storeSettings: 'Store & Checkout',
+        developerHub: 'Developer Hub',
+        security: 'Risk & Security'
+      };
+      const subNames = {
+        subViewOpsLive: 'Live Monitor & Slots',
+        subViewOpsCounter: 'Counter Desk (POS)',
+        subViewOpsTransactions: 'Transactions Ledger',
+        subViewOpsObservers: 'Payment Observers Status',
+        subViewStoreBrand: 'Brand Identity & Live Mockup',
+        subViewStoreVpa: 'Receiving Accounts (VPAs)',
+        subViewStoreModes: 'Selling Modes & Modalities',
+        subViewDevSimulator: 'Payment Simulator',
+        subViewDevSupervisor: 'System Supervisor & Store',
+        subViewDevCloudflare: 'Cloudflare Tunnel',
+        subViewDevWebhooks: 'Webhooks & Secrets',
+        subViewDevAndroid: 'Android SMS Hub',
+        subViewDevProtocols: 'Gmail & WhatsApp Protocols',
+        subViewSecBanned: 'Banned Users',
+        subViewSecEvents: 'Security Events',
+        subViewSecHistory: 'Ban History'
+      };
+      const bSec = document.getElementById('cfBreadcrumbSec');
+      const bCurr = document.getElementById('cfBreadcrumbCurr');
+      if (bSec) bSec.textContent = secNames[sectionId] || sectionId;
+      if (bCurr) bCurr.textContent = subNames[subViewId] || subViewId || 'Overview';
+    }
+
     // --- NAVIGATION CONTROLLER: 3 HIGH-LEVEL SECTIONS ---
     function switchSection(sectionId, targetSubTab = null) {
       activeSection = sectionId;
@@ -3536,16 +4072,17 @@
 
       // Update main nav buttons
       document.querySelectorAll('.main-nav-btn').forEach(b => b.classList.remove('active'));
-      if (sectionId === 'operations') document.getElementById('mainNavOperations').classList.add('active');
-      if (sectionId === 'storeSettings') document.getElementById('mainNavStoreSettings').classList.add('active');
-      if (sectionId === 'developerHub') document.getElementById('mainNavDeveloperHub').classList.add('active');
-      if (sectionId === 'security') document.getElementById('mainNavSecurity').classList.add('active');
+      const navBtn = document.getElementById('mainNav' + sectionId.charAt(0).toUpperCase() + sectionId.slice(1));
+      if (navBtn) navBtn.classList.add('active');
 
       // Show/hide sections
       document.getElementById('sectionOperations').hidden = (sectionId !== 'operations');
       document.getElementById('sectionStoreSettings').hidden = (sectionId !== 'storeSettings');
       document.getElementById('sectionDeveloperHub').hidden = (sectionId !== 'developerHub');
       document.getElementById('sectionSecurity').hidden = (sectionId !== 'security');
+
+      // Update sidebar active highlight
+      updateSidebarActiveItem(sectionId, targetSubTab);
 
       // Render sub-navigation bar
       renderSubNavBar(sectionId, targetSubTab);
@@ -3619,6 +4156,10 @@
         p.classList.remove('active');
         if (p.onclick.toString().includes(subViewId)) p.classList.add('active');
       });
+
+      // Update sidebar item active
+      updateSidebarActiveItem(sectionId, subViewId);
+      updateBreadcrumbs(sectionId, subViewId);
 
       // Hide all sub-views in current section and show target
       const parent = document.getElementById(
@@ -4446,15 +4987,18 @@
       const idEl = document.getElementById('activeVpaIdDisplay');
       const payeeEl = document.getElementById('activeVpaPayeeDisplay');
       const headerVpa = document.getElementById('accountVpaDisplay');
+      const sidebarVpa = document.getElementById('sidebarVpaVal');
 
       if (activeData && activeData.upiId && activeData.isActive) {
         if (idEl) idEl.textContent = activeData.upiId;
         if (payeeEl) payeeEl.textContent = `Payee: ${activeData.payeeName || 'Store'}`;
         if (headerVpa) headerVpa.textContent = `VPA: ${activeData.upiId}`;
+        if (sidebarVpa) sidebarVpa.textContent = activeData.upiId;
       } else {
         if (idEl) idEl.textContent = 'No VPA currently active';
         if (payeeEl) payeeEl.textContent = 'Add or activate a VPA below to accept payments';
         if (headerVpa) headerVpa.textContent = 'NO ACTIVE VPA';
+        if (sidebarVpa) sidebarVpa.textContent = 'None Active';
       }
     }
 
@@ -4677,6 +5221,7 @@
       const badgeProd = document.getElementById('badgeProductionActive');
       const badgeDisplay = document.getElementById('envModeDisplayBadge');
       const headerBadge = document.getElementById('headerEnvBadge');
+      const sidebarEnv = document.getElementById('sidebarEnvText');
 
       if (mode === 'production') {
         if (btnLoc) { btnLoc.style.borderColor = 'var(--border)'; btnLoc.style.background = '#0b1120'; }
@@ -4685,6 +5230,7 @@
         if (badgeProd) badgeProd.style.display = 'inline-block';
         if (badgeDisplay) { badgeDisplay.textContent = '🌍 PRODUCTION MODE'; badgeDisplay.className = 'badge badge-success'; }
         if (headerBadge) { headerBadge.textContent = '🌍 PRODUCTION'; headerBadge.className = 'badge badge-success'; }
+        if (sidebarEnv) sidebarEnv.textContent = 'ENV: PRODUCTION';
       } else {
         if (btnLoc) { btnLoc.style.borderColor = '#38bdf8'; btnLoc.style.background = '#0f172a'; }
         if (btnProd) { btnProd.style.borderColor = 'var(--border)'; btnProd.style.background = '#0b1120'; }
@@ -4692,6 +5238,7 @@
         if (badgeProd) badgeProd.style.display = 'none';
         if (badgeDisplay) { badgeDisplay.textContent = '💻 LOCALHOST MODE'; badgeDisplay.className = 'badge badge-info'; }
         if (headerBadge) { headerBadge.textContent = '💻 LOCALHOST'; headerBadge.className = 'badge badge-info'; }
+        if (sidebarEnv) sidebarEnv.textContent = 'ENV: LOCALHOST';
       }
 
       updateCloudflarePreview();
