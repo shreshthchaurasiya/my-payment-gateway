@@ -1,0 +1,3019 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merchant Portal & Control Hub — YOUPI PG</title>
+  <link rel="stylesheet" href="/css/dashboard.css?v=2.5.1" />
+</head>
+<body data-theme="light">
+  <!-- Injected Server Context (JSON Data Islands) -->
+  <script type="application/json" id="youpiInjectedUser">{{CURRENT_USER_JSON}}</script>
+  <script type="application/json" id="youpiInjectedMerchant">{{CURRENT_MERCHANT_JSON}}</script>
+  <script type="application/json" id="youpiInjectedAdminToken">{{ADMIN_API_TOKEN}}</script>
+
+  <!-- Mobile Drawer Backdrop -->
+  <div id="cfSidebarBackdrop" class="cf-sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
+  <!-- Cashfree / Razorpay Left Sidebar -->
+  <aside id="cfSidebar" class="cf-sidebar">
+    <div class="cf-sidebar-header">
+      <div class="cf-brand-logo">
+        <span class="cf-brand-icon">🛡️</span>
+        <div class="cf-brand-info">
+          <span class="cf-brand-title" id="cfSidebarBrandTitle">YOUPI PG</span>
+          <span class="cf-brand-sub" id="cfSidebarBrandSub">FinTech Dashboard</span>
+        </div>
+      </div>
+      <button class="cf-sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close Sidebar">✕</button>
+    </div>
+
+    <!-- Quick Environment & Search Box -->
+    <div class="cf-sidebar-env-badge admin-only" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+      <span style="display:flex; align-items:center;">
+        <span class="cf-env-dot">●</span>
+        <span id="sidebarEnvText">ENV: LOCALHOST</span>
+      </span>
+      <span class="cf-env-switch-hint">Tunnel ↗</span>
+    </div>
+
+    <!-- Navigation Scroll Container -->
+    <div class="cf-sidebar-nav">
+      <!-- Section 1: Operations -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>OPERATIONS</span>
+        </div>
+        <button class="cf-nav-item active" data-sec="operations" data-sub="subViewOpsLive" onclick="navigateTo('operations', 'subViewOpsLive')">
+          <span class="cf-nav-icon">📊</span>
+          <span class="cf-nav-label">Live Monitor &amp; Slots</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsLinks" onclick="navigateTo('operations', 'subViewOpsLinks')">
+          <span class="cf-nav-icon">🔗</span>
+          <span class="cf-nav-label">Payment Links</span>
+        </button>
+        <button class="cf-nav-item admin-only" data-sec="operations" data-sub="subViewOpsClients" onclick="navigateTo('operations', 'subViewOpsClients')">
+          <span class="cf-nav-icon">👥</span>
+          <span class="cf-nav-label">Clients &amp; Merchants</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsTransactions" onclick="navigateTo('operations', 'subViewOpsTransactions')">
+          <span class="cf-nav-icon">💳</span>
+          <span class="cf-nav-label">Transactions Ledger</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsCounter" onclick="navigateTo('operations', 'subViewOpsCounter')">
+          <span class="cf-nav-icon">🏪</span>
+          <span class="cf-nav-label">Counter Desk (POS)</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsObservers" onclick="navigateTo('operations', 'subViewOpsObservers')">
+          <span class="cf-nav-icon">📡</span>
+          <span class="cf-nav-label">Payment Observers</span>
+        </button>
+      </div>
+
+      <!-- Section 2: Store & Checkout -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>STORE &amp; SETTINGS</span>
+        </div>
+        <button class="cf-nav-item" data-sec="storeSettings" data-sub="subViewStoreBrand" onclick="navigateTo('storeSettings', 'subViewStoreBrand')">
+          <span class="cf-nav-icon">🎨</span>
+          <span class="cf-nav-label">Brand &amp; Checkout Look</span>
+        </button>
+        <button class="cf-nav-item" data-sec="storeSettings" data-sub="subViewStoreVpa" onclick="navigateTo('storeSettings', 'subViewStoreVpa')">
+          <span class="cf-nav-icon">⚡</span>
+          <span class="cf-nav-label">Receiving VPAs</span>
+        </button>
+        <button class="cf-nav-item" data-sec="storeSettings" data-sub="subViewStoreModes" onclick="navigateTo('storeSettings', 'subViewStoreModes')">
+          <span class="cf-nav-icon">🏬</span>
+          <span class="cf-nav-label">Selling Modes</span>
+        </button>
+      </div>
+
+      <!-- Section 3: Developer & Infrastructure Hub -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>DEVELOPER HUB</span>
+        </div>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevWebhooks" onclick="navigateTo('developerHub', 'subViewDevWebhooks')">
+          <span class="cf-nav-icon">🔑</span>
+          <span class="cf-nav-label">API Keys &amp; Webhooks</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevSimulator" onclick="navigateTo('developerHub', 'subViewDevSimulator')">
+          <span class="cf-nav-icon">🎮</span>
+          <span class="cf-nav-label">Bank SMS Simulator</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevAndroid" onclick="navigateTo('developerHub', 'subViewDevAndroid')">
+          <span class="cf-nav-icon">📱</span>
+          <span class="cf-nav-label">Android SMS Gateway</span>
+        </button>
+        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevProtocols" onclick="navigateTo('developerHub', 'subViewDevProtocols')">
+          <span class="cf-nav-icon">📧</span>
+          <span class="cf-nav-label">Gmail &amp; WhatsApp API</span>
+        </button>
+        <button class="cf-nav-item admin-only" data-sec="developerHub" data-sub="subViewDevCloudflare" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+          <span class="cf-nav-icon">☁️</span>
+          <span class="cf-nav-label">Cloudflare Tunnel</span>
+        </button>
+        <button class="cf-nav-item admin-only" data-sec="developerHub" data-sub="subViewDevSupervisor" onclick="navigateTo('developerHub', 'subViewDevSupervisor')">
+          <span class="cf-nav-icon">🖥️</span>
+          <span class="cf-nav-label">System Supervisor</span>
+        </button>
+      </div>
+
+      <!-- Section 4: Risk & Security -->
+      <div class="cf-nav-group">
+        <div class="cf-nav-group-title">
+          <span>RISK &amp; SECURITY</span>
+        </div>
+        <button class="cf-nav-item" data-sec="security" data-sub="subViewSecBanned" onclick="navigateTo('security', 'subViewSecBanned')">
+          <span class="cf-nav-icon">🚫</span>
+          <span class="cf-nav-label">Banned Users</span>
+        </button>
+        <button class="cf-nav-item" data-sec="security" data-sub="subViewSecEvents" onclick="navigateTo('security', 'subViewSecEvents')">
+          <span class="cf-nav-icon">🚨</span>
+          <span class="cf-nav-label">Security Events</span>
+        </button>
+        <button class="cf-nav-item" data-sec="security" data-sub="subViewSecHistory" onclick="navigateTo('security', 'subViewSecHistory')">
+          <span class="cf-nav-icon">📜</span>
+          <span class="cf-nav-label">Ban Audit History</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="cf-sidebar-footer">
+      <div class="cf-user-card" onclick="navigateTo('storeSettings', 'subViewStoreVpa')">
+        <div class="cf-user-avatar">⚡</div>
+        <div class="cf-user-info">
+          <span class="cf-user-label">Active Receiving VPA</span>
+          <span class="cf-user-vpa" id="sidebarVpaVal">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper (Shifted right on desktop, full width on mobile/tablet) -->
+  <div class="cf-main-wrapper">
+    <!-- Topbar Header -->
+    <header class="cf-topbar">
+      <div class="cf-topbar-left">
+        <!-- Hamburger button for mobile / tablet -->
+        <button id="cfMobileToggleBtn" class="cf-hamburger-btn" onclick="toggleMobileSidebar()" aria-label="Toggle Menu">
+          <span class="cf-hamburger-line"></span>
+          <span class="cf-hamburger-line"></span>
+          <span class="cf-hamburger-line"></span>
+        </button>
+
+        <div class="cf-breadcrumb-wrap">
+          <span class="cf-breadcrumb-root">YOUPI</span>
+          <span class="cf-breadcrumb-sep">/</span>
+          <span class="cf-breadcrumb-sec" id="cfBreadcrumbSec">Daily Operations</span>
+          <span class="cf-breadcrumb-sep">/</span>
+          <span class="cf-breadcrumb-curr" id="cfBreadcrumbCurr">Live Monitor &amp; Slots</span>
+        </div>
+      </div>
+
+      <div class="header-quick-stats">
+        <!-- Real Light / Dark Mode Toggle Pill (Hidden: Dashboard strictly in crisp White Light theme) -->
+        <div class="theme-mode-pill" id="headerThemeBadge" style="display:none;" onclick="toggleThemeManual()">
+          <span id="headerThemeIcon">☀️</span>
+          <span id="headerThemeText">Bright White</span>
+        </div>
+
+        <!-- YOUPI Store Port 5000 Switch Badge -->
+        <div class="store-switch-badge is-offline admin-only" id="headerStoreBadge" onclick="toggleYoupiStore()"
+          title="Click to 1-Click Enable/Disable YOUPI Showcase Store on Port 5000">
+          <span id="headerStoreDot">●</span>
+          <span id="headerStoreText">Store (5000): Checking...</span>
+        </div>
+
+        <!-- Active VPA Display -->
+        <span class="badge badge-info" id="accountVpaDisplay" style="cursor:pointer;"
+          onclick="navigateTo('storeSettings', 'subViewStoreVpa')">
+          VPA: Loading...
+        </span>
+
+        <!-- Environment Mode -->
+        <div class="admin-only"
+          style="display:flex; align-items:center; gap:0.4rem; background:var(--bg-card); padding:0.3rem 0.75rem; border-radius:9999px; border:1px solid var(--border); cursor:pointer;"
+          onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+          <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">ENV:</span>
+          <span class="badge badge-info" id="headerEnvBadge" style="font-size:0.72rem; padding:0.15rem 0.5rem;">💻 LOCALHOST</span>
+        </div>
+
+        <!-- Live Polling Indicator -->
+        <div class="live-pulse-badge">
+          <div class="pulse-dot"></div>
+          <span>Live Syncing</span>
+        </div>
+
+        <!-- User Info & Sign Out -->
+        <span id="headerUserDisplay" style="font-size:0.78rem; font-weight:700; color:var(--text-heading); margin-right:4px;"></span>
+        <button class="btn btn-secondary" onclick="logoutAdmin()" style="font-size:0.75rem; padding:0.35rem 0.75rem; border-color:rgba(239,68,68,0.3); color:#fca5a5; background:rgba(239,68,68,0.08);">
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Hidden compatibility buttons for #mainNavOperations etc so any code targeting them still works -->
+    <nav class="main-nav-bar" style="display:none;" aria-hidden="true">
+      <button class="main-nav-btn active" id="mainNavOperations" onclick="switchSection('operations')"></button>
+      <button class="main-nav-btn" id="mainNavStoreSettings" onclick="switchSection('storeSettings')"></button>
+      <button class="main-nav-btn" id="mainNavDeveloperHub" onclick="switchSection('developerHub')"></button>
+      <button class="main-nav-btn" id="mainNavSecurity" onclick="switchSection('security')"></button>
+    </nav>
+
+    <!-- SECONDARY SUB-NAVIGATION BAR (Hidden - replaced by Cashfree/Razorpay sidebar) -->
+    <nav class="sub-nav-bar" id="subNavBar" style="display:none;" aria-hidden="true">
+      <!-- Filled dynamically or toggled based on current section -->
+    </nav>
+
+    <main>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 1: DAILY MERCHANT OPERATIONS                                      -->
+    <!-- ========================================================================= -->
+    <div id="sectionOperations">
+
+      <!-- KPI Summary Cards -->
+      <div class="kpi-row">
+        <div class="kpi-box">
+          <div class="kpi-title">Today's Volume</div>
+          <div class="kpi-value" id="kpiVol" style="color:var(--kpi-vol-color);">₹0.00</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-title">Successful Payments</div>
+          <div class="kpi-value" id="kpiSuccessCount" style="color:var(--kpi-success-color);">0</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-title">In Waiting Queue</div>
+          <div class="kpi-value" id="kpiQueueCount" style="color:var(--kpi-queue-color);">0</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-title">Pending Counter Payments</div>
+          <div class="kpi-value" id="kpiPendingCounterCount" style="color:var(--kpi-pending-color);">0</div>
+        </div>
+      </div>
+
+      <!-- Verification Standards Metric Row (2-Layer Engine: SMS + Gmail) -->
+      <div class="kpi-row" style="margin-top:-0.5rem; margin-bottom:1.5rem;">
+        <div class="kpi-box">
+          <div class="kpi-title">Single Verified (1 Source)</div>
+          <div class="kpi-value" id="kpiSingleVerify" style="color:var(--info); font-size:1.5rem;">0</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-title">Dual Verified (2 Sources: SMS + Gmail)</div>
+          <div class="kpi-value" id="kpiDualVerify" style="color:var(--success); font-size:1.5rem;">0</div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.0: REGISTERED CLIENTS & MERCHANTS (Super Admin Control Center) -->
+      <div id="subViewOpsClients" hidden>
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">👥 Registered Clients &amp; Merchant Stores</div>
+              <div class="card-subtext">Comprehensive platform directory of all sovereign merchant clients, API credentials, and traffic volumes.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" onclick="loadAdminClients()">🔄 Refresh Directory</button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:1rem; margin-bottom:1.25rem; flex-wrap:wrap; align-items:center;">
+            <div style="flex:1; min-width:260px;">
+              <input type="text" id="adminClientSearch" placeholder="Search by merchant name, slug, email, or UPI..." 
+                oninput="filterAdminClients(this.value)" style="width:100%; padding:0.6rem 1rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border);" />
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-muted);">
+              Total Merchants: <strong id="adminTotalClientsCount" style="color:var(--text-heading);">0</strong>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border); background:var(--bg-subtle);">
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">BUSINESS / STORE</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">CONTACT &amp; OWNER</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">RECEIVING VPA</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">ORDERS / VOLUME</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">API CREDENTIALS</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">USERS</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">REGISTERED</th>
+                </tr>
+              </thead>
+              <tbody id="adminClientsTableBody">
+                <tr>
+                  <td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">
+                    Loading client directory...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.05: PAYMENT LINKS & INSTANT CHECKOUT STUDIO (Razorpay Standard) -->
+      <div id="subViewOpsLinks" hidden>
+        <!-- Top Card: Create Payment Link -->
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🔗 Create Instant Payment Link</div>
+              <div class="card-subtext">Generate single-use, sovereign payment links. Share directly on WhatsApp/SMS or test your live customer checkout.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary" onclick="createQuickOneRupeeLink()" style="font-size:0.8rem;">🧪 Quick ₹1 Test Link</button>
+            </div>
+          </div>
+
+          <form id="plCreateForm" onsubmit="handleCreatePaymentLink(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <!-- Left Column: Amount & Purpose -->
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                  Amount (INR) <span style="color:#ef4444;">*</span>
+                </label>
+                <div style="position:relative; display:flex; align-items:center;">
+                  <span style="position:absolute; left:12px; font-weight:800; color:var(--text-muted); font-size:1.1rem;">₹</span>
+                  <input type="number" id="plInputAmount" step="0.01" min="1" max="100000" value="1.00" required
+                    style="width:100%; padding:0.65rem 1rem 0.65rem 2rem; font-size:1.2rem; font-weight:800; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading);" />
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Direct deposit into your active VPA. Zero gateway fee (0.00%).</div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                  Payment For / Purpose <span style="color:#ef4444;">*</span>
+                </label>
+                <input type="text" id="plInputPurpose" placeholder="e.g. T-Shirt Order #1001, Advance Payment" required
+                  style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.88rem;" />
+              </div>
+            </div>
+
+            <!-- Right Column: Customer Details & Order ID -->
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                <div>
+                  <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                    Customer Name <span style="font-size:0.72rem; color:var(--text-muted);">(Optional)</span>
+                  </label>
+                  <input type="text" id="plInputCustName" placeholder="e.g. Rahul Sharma"
+                    style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.85rem;" />
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                    Customer Phone <span style="font-size:0.72rem; color:var(--text-muted);">(Optional)</span>
+                  </label>
+                  <input type="tel" id="plInputCustPhone" placeholder="e.g. 9876543210"
+                    style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.85rem;" />
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                  Custom Reference / Order ID <span style="font-size:0.72rem; color:var(--text-muted);">(Auto-generated if empty)</span>
+                </label>
+                <input type="text" id="plInputOrderId" placeholder="e.g. ORDER-2026-X"
+                  style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.85rem;" />
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; align-items:flex-end; margin-top:auto;">
+                <button type="submit" id="btnGeneratePl" class="btn btn-primary" style="padding:0.7rem 1.75rem; font-size:0.92rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
+                  <span>⚡ Generate Payment Link</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Generated Link Hero Result Box (Shown dynamically upon generation) -->
+          <div id="plResultHero" style="display:none; margin-top:1.5rem; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.04); border-radius:12px; padding:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
+              <div style="flex:1; min-width:280px;">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+                  <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+                  <strong style="color:#10b981; font-size:0.95rem;">Payment Link Ready &amp; Accepting UPI</strong>
+                  <span id="plResultAmountBadge" class="badge badge-success" style="font-size:0.85rem; padding:0.2rem 0.6rem;">₹1.00</span>
+                </div>
+                <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.85rem;" id="plResultMetaDesc">
+                  Single-use UPI dynamic session created.
+                </div>
+
+                <!-- URL Bar with Copy Button -->
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem;">
+                  <input type="text" id="plResultUrlInput" readonly
+                    style="flex:1; font-family:monospace; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:#38bdf8;" />
+                  <button type="button" class="btn btn-secondary" onclick="copyCurrentPaymentLink()" style="font-weight:700; padding:0.65rem 1rem;">
+                    📋 Copy
+                  </button>
+                </div>
+
+                <!-- Action Button Cluster (WhatsApp, Open, Modal Preview) -->
+                <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+                  <button type="button" class="btn btn-secondary" onclick="shareCurrentPaymentLinkWhatsApp()" style="background:#25D366; color:#fff; border:none; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>💬 Share on WhatsApp</span>
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="openCurrentPaymentLinkTab()" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>🚀 Open Customer Checkout</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="previewCurrentPaymentLinkModal()" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>👁️ Live Modal Preview</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mini QR Code Box -->
+              <div style="display:flex; flex-direction:column; align-items:center; background:var(--bg-card); padding:1rem; border-radius:12px; border:1px solid var(--border); min-width:160px;">
+                <div id="plResultQrContainer" style="width:130px; height:130px; display:flex; align-items:center; justify-content:center; background:#fff; border-radius:8px; padding:6px; margin-bottom:0.5rem;">
+                  <span class="spinner" style="width:20px; height:20px; border:2px solid #3b82f6; border-top-color:transparent; border-radius:50%; display:inline-block; animation:spin 1s linear infinite;"></span>
+                </div>
+                <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-align:center;">Scan with PhonePe, GPay, Paytm</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Card: Payment Links History / Ledger -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">📋 Payment Links History &amp; Orders</div>
+              <div class="card-subtext">Real-time status of all generated payment links, verification states, and customer payments.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary" onclick="loadPaymentLinksLedger()">🔄 Refresh</button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border); background:var(--bg-subtle);">
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">CREATED AT</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">ORDER / REF ID</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">AMOUNT</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">PAYMENT METHOD</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">STATUS</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">UTR / REFERENCE</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted); text-align:right;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="paymentLinksTableBody">
+                <tr>
+                  <td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">
+                    Loading payment links...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.1: LIVE QUEUE & SLOTS -->
+      <div id="subViewOpsLive">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🔴 Real-Time Receiving Account Slot Ownership (UPI Invariant)</div>
+              <div class="card-subtext">Guarantees zero payment collision by rotating dynamic slots per receiving UPI
+                VPA.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" onclick="fetchLiveData()">Force Refresh</button>
+              <button class="btn btn-danger" onclick="promptClearAllQueue()">Clear Waiting Queue</button>
+            </div>
+          </div>
+
+          <div class="queue-grid">
+            <!-- Active 5:00 Slot -->
+            <div class="slot-card" id="slotActiveBox">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">
+                Active Slot (5-Minute Window)</div>
+              <div id="slotActiveContent" style="padding:1rem 0; color:var(--text-muted);">
+                No customer actively checking out right now.
+              </div>
+            </div>
+
+            <!-- Processing 30s Slot -->
+            <div class="slot-card" id="slotProcBox">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">
+                Processing Slot (30s Verification Window)</div>
+              <div id="slotProcContent" style="padding:1rem 0; color:var(--text-muted);">
+                No payment in verification window.
+              </div>
+            </div>
+          </div>
+
+          <!-- Waiting Queue Table -->
+          <div style="margin-top:1.5rem;">
+            <div style="font-size:0.92rem; font-weight:700; margin-bottom:0.75rem; color:var(--text-heading);">
+              ⏳ Waiting Customer Queue
+            </div>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Queue #</th>
+                    <th>Order</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Enqueued At</th>
+                  </tr>
+                </thead>
+                <tbody id="queueTableBody">
+                  <tr>
+                    <td colspan="5" style="text-align:center; color:var(--text-muted); padding:1rem;">Waiting queue is
+                      empty.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.2: COUNTER DESK (CASHIER POS) -->
+      <div id="subViewOpsCounter" hidden>
+        <!-- Mode Card: Cash/Card Counter Desk (Offline) -->
+        <div class="card" id="counterDeskOfflineCard">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🏪 Cash &amp; Card Billing Counter Desk (Live Counter Payment Requests)</div>
+              <div class="card-subtext">Real-time incoming payment requests from checkout screens. Verify banknotes or
+                POS slips and approve immediately.</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span class="badge badge-info" id="operatorDisplay">Cashier Desk #1</span>
+              <button class="btn btn-secondary" onclick="fetchCounterPayments()">Refresh</button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Payment ID</th>
+                  <th>Amount</th>
+                  <th>Counter Method</th>
+                  <th>Requested At</th>
+                  <th>Cashier Actions</th>
+                </tr>
+              </thead>
+              <tbody id="counterTableBody">
+                <tr>
+                  <td colspan="6" style="text-align:center; color:var(--text-muted); padding:1.5rem;">No pending counter
+                    payments right now.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mode Card: COD Orders (Online) -->
+        <div class="card" id="counterDeskCodCard" style="display:none;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">📦 Cash on Delivery (COD) Verified Orders</div>
+              <div class="card-subtext">Orders placed with Cash on Delivery payment confirmation. Ready for fulfillment
+                and dispatch.</div>
+            </div>
+            <button class="btn btn-secondary" onclick="fetchCodOrders()">Refresh Orders</button>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Payment Ref</th>
+                  <th>Amount</th>
+                  <th>Customer Name</th>
+                  <th>Phone</th>
+                  <th>Placed At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="codOrdersTableBody">
+                <tr>
+                  <td colspan="7" style="text-align:center; color:var(--text-muted); padding:1.5rem;">No COD orders
+                    placed yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.3: TRANSACTIONS LEDGER -->
+      <div id="subViewOpsTransactions" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">💳 Payment Transactions Ledger</div>
+              <div class="card-subtext">Comprehensive transaction audit history with automated bank observer attribution
+                &amp; verification tiers.</div>
+            </div>
+            <button class="btn btn-secondary" onclick="fetchPaymentsLedger()">Refresh</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Payment ID</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Status</th>
+                  <th>Verification Tier</th>
+                  <th>Channel Sources</th>
+                  <th>Created At</th>
+                  <th>Completed At</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsLedgerTbody">
+                <tr>
+                  <td colspan="9" style="text-align:center; padding:1.5rem;">Loading transactions...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.4: PAYMENT OBSERVERS LIVE STATUS -->
+      <div id="subViewOpsObservers" hidden>
+        <div
+          style="font-size:1.15rem; font-weight:800; color:var(--text-heading); margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>📡</span> Payment Observers (SMS & Gmail)
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <!-- Android Companion Card -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-heading">📱 Android SMS Gateway</div>
+              <span class="badge badge-info" id="smsGatewayBadge">STANDBY</span>
+            </div>
+            <p class="card-subtext" style="margin-bottom:1rem;">
+              Native Android observer app captures credit SMS notifications in real-time from bank-linked handsets.
+            </p>
+            <div
+              style="background:var(--bg-surface); border:1px solid var(--border); border-radius:0.5rem; padding:1rem; margin-bottom:1rem;">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.4rem;">Enrollment
+                Secret:</div>
+              <code id="smsTokenVal" style="color:var(--info); font-weight:700; font-size:0.85rem;">Loading...</code>
+              <button class="btn btn-secondary" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-left:0.5rem;"
+                onclick="copySmsToken()">📋 Copy</button>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <a class="btn btn-success" href="/youpi-sms-gateway.apk" download="youpi-sms-gateway.apk">📲 Download
+                Companion APK</a>
+              <button class="btn btn-secondary" onclick="navigateTo('developerHub', 'subViewDevAndroid')">Configure
+                Pairing ↗</button>
+            </div>
+          </div>
+
+          <!-- Gmail Direct API Card -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-heading">📧 Gmail Direct API</div>
+              <span class="badge badge-info" id="gmailConfigBadge">NOT CONFIGURED</span>
+            </div>
+            <p class="card-subtext" style="margin-bottom:1rem;">
+              Direct Google Cloud OAuth poller reading transaction credit alerts directly from your merchant inbox.
+            </p>
+            <div
+              style="background:var(--bg-surface); border:1px solid var(--border); border-radius:0.5rem; padding:1rem; margin-bottom:1rem;">
+              <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+                Dual-verification engine matches transactions across both SMS and Gmail channels for 100% fraud
+                immunity.
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="navigateTo('developerHub', 'subViewDevProtocols')">Configure Gmail API
+              ↗</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 2: STORE SETTINGS                                                 -->
+    <!-- ========================================================================= -->
+    <div id="sectionStoreSettings" hidden>
+
+      <!-- SUB-VIEW 2.1: BRAND IDENTITY & WHITE-LABEL VISUAL CUSTOMIZER -->
+      <div id="subViewStoreBrand">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🎨 White-Label Branding &amp; Visual Gateway Customizer</div>
+              <div class="card-subtext">Customize every visual, textual, and brand asset of your customer checkout
+                experience. Live reflection on smartphone mockup.</div>
+            </div>
+            <span class="badge badge-success">100% White-Label Capable</span>
+          </div>
+
+          <div
+            style="display:grid; grid-template-columns:minmax(0, 1.4fr) minmax(340px, 1fr); gap:2rem; align-items:start;">
+
+            <!-- LEFT COLUMN: CONTROLS & SETTINGS -->
+            <div>
+              <!-- SECTION 1: CORE BRAND IDENTITY -->
+              <div class="settings-group-box">
+                <div class="group-box-title">
+                  🏷️ 1. Core Brand Identity &amp; Title
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Merchant
+                      Store / Business Name</label>
+                    <input id="settingBusinessName" type="text" placeholder="e.g. YOUPI Store or MSPCARE"
+                      style="width:100%;" oninput="updateLiveWhiteLabelPreview()" />
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Gateway
+                      Title / App Name</label>
+                    <input id="settingAppName" type="text" value="YOUPI PG" placeholder="e.g. YOUPI Pay"
+                      style="width:100%;" oninput="updateLiveWhiteLabelPreview()" />
+                  </div>
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Brand Logo
+                    Image URL</label>
+                  <input id="settingLogoUrl" type="url" placeholder="https://yourbrand.com/logo.png" style="width:100%;"
+                    oninput="updateLiveWhiteLabelPreview()" />
+                  <span
+                    style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:0.25rem;">Transparent
+                    PNG or SVG recommended. When left blank, your store initial letter is used.</span>
+                </div>
+              </div>
+
+              <!-- SECTION 2: VISUAL THEME & COLOR PALETTE -->
+              <div class="settings-group-box">
+                <div class="group-box-title">
+                  🎨 2. Visual Theme &amp; Color Palette
+                </div>
+                <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; margin-bottom:1rem;">
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Primary
+                      Brand Color (Hex)</label>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                      <input id="settingColorPicker" type="color" value="#0b63e5"
+                        style="width:44px; height:40px; border:none; background:transparent; cursor:pointer; padding:0;"
+                        oninput="syncColorPickerToText(this.value)" />
+                      <input id="settingPrimaryColor" type="text" value="#0b63e5"
+                        style="flex:1; font-family:monospace; font-weight:700;"
+                        oninput="syncTextColorToPicker(this.value)" />
+                    </div>
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Header
+                      Styling Theme</label>
+                    <select id="settingHeaderTheme" style="width:100%;" onchange="updateLiveWhiteLabelPreview()">
+                      <option value="gradient">Dynamic Gradient (Brand to Deep Accent)</option>
+                      <option value="solid">Solid Brand Color</option>
+                      <option value="dark">Obsidian Dark Navy (#0b1329)</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <span
+                    style="font-size:0.75rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:0.4rem;">Quick
+                    FinTech Brand Palettes:</span>
+                  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.65rem; font-size:0.75rem;"
+                      onclick="applyQuickPalette('#0b63e5', 'gradient')">🔵 Sapphire Blue</button>
+                    <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.65rem; font-size:0.75rem;"
+                      onclick="applyQuickPalette('#10b981', 'gradient')">🟢 Emerald Green</button>
+                    <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.65rem; font-size:0.75rem;"
+                      onclick="applyQuickPalette('#8b5cf6', 'gradient')">🟣 Violet Purple</button>
+                    <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.65rem; font-size:0.75rem;"
+                      onclick="applyQuickPalette('#f43f5e', 'gradient')">🔴 Rose Crimson</button>
+                    <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.65rem; font-size:0.75rem;"
+                      onclick="applyQuickPalette('#d97706', 'gradient')">🟡 Amber Gold</button>
+                    <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.65rem; font-size:0.75rem;"
+                      onclick="applyQuickPalette('#0f172a', 'dark')">⚫ Obsidian Dark</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECTION 3: TRUST BADGE & SUB-BANNER CONTROLS -->
+              <div class="settings-group-box">
+                <div class="group-box-title">
+                  🛡️ 3. Badges &amp; Conversion Banners
+                </div>
+                <!-- Hidden inputs preserve existing trust badge settings without merchant UI access -->
+                <input type="hidden" id="settingHideTrustBadge" />
+                <input type="hidden" id="settingTrustBadgeText" />
+                <div style="margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px dashed var(--border);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                    <label style="font-size:0.82rem; font-weight:700;">Header Sub-banner Text</label>
+                    <label
+                      style="font-size:0.78rem; color:var(--text-muted); display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                      <input type="checkbox" id="settingHideSubbanner" onchange="updateLiveWhiteLabelPreview()" />
+                      <span>Hide Sub-banner</span>
+                    </label>
+                  </div>
+                  <input id="settingSubbannerText" type="text" placeholder="e.g. ⚡ 5-Second Instant UPI Activation"
+                    style="width:100%;" oninput="updateLiveWhiteLabelPreview()" />
+                </div>
+                <div>
+                  <label
+                    style="font-size:0.78rem; color:var(--text-muted); display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                    <input type="checkbox" id="settingHideTimeSavingBanner" onchange="updateLiveWhiteLabelPreview()" />
+                    <span>Hide Psychological Time-Saving Banner</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SECTION 4: TRUST GUARANTEES & NOTICES -->
+              <div class="settings-group-box">
+                <div class="group-box-title">
+                  🛡️ 4. Guarantees &amp; Conversion Notices
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Sidebar Trust Notice</label>
+                    <input id="settingSidebarNotice" type="text" placeholder="e.g. Fast & Secure 256-Bit Encrypted Payments" style="width:100%;" oninput="updateLiveWhiteLabelPreview()" />
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Footer Guarantee Text</label>
+                    <input id="settingFooterGuarantee" type="text" placeholder="e.g. 100% Payment Protection Guaranteed" style="width:100%;" oninput="updateLiveWhiteLabelPreview()" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECTION 5: SUPPORT & LEGAL POLICIES -->
+              <div class="settings-group-box">
+                <div class="group-box-title">
+                  📞 5. Support &amp; Legal Policies
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Customer
+                      Support Email(s)</label>
+                    <input id="settingSupportEmails" type="text" placeholder="support@brand.com, help@brand.com"
+                      style="width:100%;" />
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Customer
+                      Support Mobile(s)</label>
+                    <input id="settingSupportMobiles" type="text" placeholder="+91 9876543210, +91 9123456789"
+                      style="width:100%;" />
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Privacy
+                      Policy URL</label>
+                    <input id="settingPrivacyPolicyUrl" type="url" placeholder="https://yourbrand.com/privacy-policy"
+                      style="width:100%;" />
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Terms of
+                      Service URL</label>
+                    <input id="settingTermsUrl" type="url" placeholder="https://yourbrand.com/terms"
+                      style="width:100%;" />
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn btn-primary"
+                style="padding:0.85rem 1.75rem; font-size:0.95rem; width:100%; justify-content:center;"
+                onclick="saveMerchantBrandingAndToggles()">
+                💾 Save &amp; Apply All White-Label Settings
+              </button>
+            </div>
+
+            <!-- RIGHT COLUMN: INTERACTIVE SMARTPHONE CHECKOUT MOCKUP PREVIEW -->
+            <div style="position:sticky; top:130px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <div
+                  style="font-size:0.82rem; font-weight:800; text-transform:uppercase; color:#94a3b8; display:flex; align-items:center; gap:0.4rem;">
+                  <span
+                    style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981;"></span>
+                  Live Gateway Mockup Preview
+                </div>
+                <span style="font-size:0.72rem; color:var(--text-muted);">Real-time reflection</span>
+              </div>
+
+              <!-- PHONE CHASSIS -->
+              <div
+                style="width:100%; max-width:380px; margin:0 auto; background:#ffffff; border-radius:36px; border:9px solid #1e293b; box-shadow:0 25px 50px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.1); overflow:hidden; position:relative; min-height:580px; display:flex; flex-direction:column;">
+                <!-- PHONE NOTCH -->
+                <div
+                  style="background:#0b0f19; height:24px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; color:#ffffff; font-size:10px; font-weight:700;">
+                  <span>9:41</span>
+                  <div style="width:50px; height:4px; background:#334155; border-radius:4px;"></div>
+                  <div style="display:flex; gap:4px; align-items:center;"><span>5G</span><span>100%</span></div>
+                </div>
+
+                <!-- LIVE CHECKOUT HEADER -->
+                <div id="mockupHeader"
+                  style="background:linear-gradient(180deg, #0b63e5 0%, #0747a6 100%); padding:12px 14px 10px 14px; color:#ffffff; transition:background 0.2s ease;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <div
+                        style="width:36px; height:36px; border-radius:50%; background:#ffffff; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.15); flex-shrink:0;">
+                        <span id="mockupAvatarLetter" style="font-weight:900; color:#0b63e5; font-size:16px;">M</span>
+                        <img id="mockupAvatarImg" alt="Logo"
+                          style="display:none; width:100%; height:100%; object-fit:contain;" />
+                      </div>
+                      <div>
+                        <div id="mockupHeaderMerchantName"
+                          style="font-size:13.5px; font-weight:800; line-height:1.2; color:#ffffff;">Merchant Checkout
+                        </div>
+                        <div id="mockupTrustBadge"
+                          style="display:inline-flex; align-items:center; gap:3px; margin-top:2px;">
+                          <span style="font-size:11px;">🛡️</span>
+                          <span id="mockupTrustBadgeText"
+                            style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.92);">YouPI PG Verified
+                            Business</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style="width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:12px;">
+                      👤</div>
+                  </div>
+
+                  <div id="mockupSubbanner"
+                    style="background:rgba(255,255,255,0.15); border-radius:6px; padding:4px 8px; font-size:10.5px; font-weight:700; display:flex; align-items:center; gap:5px; backdrop-filter:blur(4px);">
+                    <span>🛒</span>
+                    <span id="mockupSubbannerText"
+                      style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Verified &amp; Protected by
+                      YOUPI PG</span>
+                  </div>
+                </div>
+
+                <!-- BODY PREVIEW -->
+                <div style="padding:12px; background:#f8fafc; flex:1; display:flex; flex-direction:column; gap:10px;">
+                  <div id="mockupTimeSavingBanner"
+                    style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:7px 10px; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                    <div style="font-size:10px; color:#14532d; font-weight:700; line-height:1.3;">⚡ Skip wait: Instant
+                      billing counter checkout available</div>
+                    <span
+                      style="background:#10b981; color:#fff; font-size:9px; font-weight:800; padding:3px 7px; border-radius:5px; white-space:nowrap;">Switch</span>
+                  </div>
+
+                  <div
+                    style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                      <div style="font-size:9.5px; color:#64748b; font-weight:700; text-transform:uppercase;">Order
+                        #ORD-78921</div>
+                      <div style="font-size:17px; font-weight:900; color:#0f172a; margin-top:2px;">₹1,500.00</div>
+                    </div>
+                    <span
+                      style="background:#eff6ff; color:#2563eb; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px;">Direct
+                      UPI</span>
+                  </div>
+
+                  <div
+                    style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center;">
+                    <div
+                      style="width:110px; height:110px; margin:0 auto 8px auto; border-radius:8px; border:2px solid #0f172a; padding:4px; display:flex; align-items:center; justify-content:center; background:#ffffff;">
+                      <div
+                        style="width:100%; height:100%; background:repeating-linear-gradient(45deg, #0f172a, #0f172a 6px, #ffffff 6px, #ffffff 12px); border-radius:4px; opacity:0.85;">
+                      </div>
+                    </div>
+                    <div style="font-size:10px; font-weight:700; color:#334155;">Scan with any UPI App (GPay, PhonePe,
+                      Paytm)</div>
+                  </div>
+                </div>
+
+                <!-- LIVE STICKY FOOTER -->
+                <div style="background:#ffffff; border-top:1px solid #e2e8f0; padding:10px 14px; margin-top:auto;">
+                  <div
+                    style="display:flex; align-items:center; justify-content:center; gap:5px; font-size:10px; font-weight:700; color:#0b63e5; margin-bottom:5px;">
+                    <span>🛡️</span>
+                    <span id="mockupFooterGuarantee">100% Payment Protection by YOUPI PG</span>
+                  </div>
+                  <div id="mockupLegalDisclaimer"
+                    style="font-size:9px; color:#64748b; text-align:center; margin-bottom:8px;">
+                    Secured by YOUPI PG &amp; 256-Bit Bank Encryption &bull; Privacy Notice
+                  </div>
+                  <div
+                    style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; border-radius:8px; padding:8px 12px; color:#ffffff;">
+                    <div>
+                      <div style="font-size:8.5px; color:#94a3b8; font-weight:600;">Total Payable</div>
+                      <div style="font-size:13px; font-weight:800; color:#ffffff;">₹1,500.00</div>
+                    </div>
+                    <span id="mockupCtaButton"
+                      style="background:#2563eb; color:#ffffff; font-size:10.5px; font-weight:800; padding:5px 12px; border-radius:6px;">Continue
+                      &rsaquo;</span>
+                  </div>
+                </div>
+
+                <!-- PHONE HOME BAR -->
+                <div style="background:#ffffff; height:14px; display:flex; align-items:center; justify-content:center;">
+                  <div style="width:90px; height:4px; background:#cbd5e1; border-radius:4px;"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 2.2: RECEIVING UPI ACCOUNTS (VPAS) -->
+      <div id="subViewStoreVpa" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">⚡ Receiving UPI Accounts &amp; Multiple VPAs</div>
+              <div class="card-subtext">Manage receiving VPAs. <strong>Only ONE VPA can be active at a time</strong> for
+                gateway payments. Activating a VPA automatically rotates and deactivates all others.</div>
+            </div>
+            <span class="badge badge-success" id="activeVpaModeBadge">Active Gateway VPA</span>
+          </div>
+
+          <!-- Current Active VPA Callout Box -->
+          <div id="activeVpaCallout"
+            style="background:var(--bg-surface); border:1px solid var(--border); border-radius:0.75rem; padding:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">
+                Currently Active Gateway VPA</div>
+              <div style="font-size:1.45rem; font-weight:900; color:var(--primary); margin:0.25rem 0;"
+                id="activeVpaIdDisplay">Loading active VPA...</div>
+              <div style="font-size:0.85rem; color:var(--text-muted);" id="activeVpaPayeeDisplay">Payee: -</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;">Checkout Mode</div>
+              <div style="font-size:0.9rem; font-weight:800; color:var(--success);">✓ Direct Dynamic UPI QR Gateway
+              </div>
+            </div>
+          </div>
+
+          <!-- Add New VPA Section -->
+          <div class="settings-group-box">
+            <h4 style="margin-bottom:0.85rem; font-size:0.95rem; color:var(--text-heading);">➕ Add New Receiving UPI VPA
+            </h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div>
+                <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.3rem;">UPI ID /
+                  VPA</label>
+                <input id="newUpiVpa" type="text" placeholder="e.g. 9876543210@axl or merchant@okhdfcbank"
+                  style="width:100%;" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.3rem;">Payee / Merchant
+                  Display Name</label>
+                <input id="newUpiPayee" type="text" placeholder="e.g. YOUPI Store or Store Name" style="width:100%;" />
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+              <label
+                style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="newUpiActivateNow" checked style="width:16px; height:16px;" />
+                <span>Set as active VPA for customer checkout immediately</span>
+              </label>
+              <button class="btn btn-primary" onclick="addNewUpiAccount()">➕ Save &amp; Add UPI Account</button>
+            </div>
+          </div>
+
+          <!-- Saved VPAs Table -->
+          <h4 style="margin-bottom:0.75rem; font-size:0.95rem; color:var(--text-heading);">📋 Saved Receiving UPI
+            Accounts</h4>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>UPI ID (VPA)</th>
+                  <th>Payee Name</th>
+                  <th>Gateway Status</th>
+                  <th>Slot State</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="upiAccountsTableBody">
+                <tr>
+                  <td colspan="6" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Loading UPI
+                    accounts...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 2.3: SELLING MODES & MODALITIES -->
+      <div id="subViewStoreModes" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🏪 Store Selling Mode &amp; Payment Modalities</div>
+              <div class="card-subtext">Toggle between <strong>Online Selling Mode</strong> (E-Commerce) or
+                <strong>Offline Selling Mode</strong> (Physical till/POS desk). Reflects instantly on checkout.
+              </div>
+            </div>
+            <span class="badge badge-info" id="currentSellingModeBadge">ONLINE SELLING MODE</span>
+          </div>
+
+          <!-- Mode Segmented Switch -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div id="cardModeOnline" onclick="setSellingMode('ONLINE', true)" class="selling-mode-card mode-selected-online">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <strong style="font-size:1rem; color:var(--text-heading);">🌐 Online Selling Mode</strong>
+                <span class="badge badge-primary" id="badgeOnlineActive">ACTIVE</span>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.45; margin:0;">
+                For websites and courier deliveries. Supports <strong>UPI QR</strong> (always on) and optional
+                <strong>Cash on Delivery (COD)</strong>.
+              </p>
+            </div>
+
+            <div id="cardModeOffline" onclick="setSellingMode('OFFLINE', true)" class="selling-mode-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <strong style="font-size:1rem; color:var(--text-heading);">🏬 Offline Selling Mode</strong>
+                <span class="badge badge-warning" id="badgeOfflineActive" style="display:none;">ACTIVE</span>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.45; margin:0;">
+                For retail stores and physical checkout desks. Supports <strong>UPI QR</strong> (always on),
+                configurable <strong>Cash</strong>, and configurable <strong>Card POS</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- ONLINE PAYMENT MODALITIES -->
+          <div id="panelOnlineMode" class="settings-group-box">
+            <div style="font-size:0.88rem; font-weight:700; color:var(--info); margin-bottom:0.75rem;">🌐 Online Payment
+              Options</div>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div
+                style="display:flex; align-items:flex-start; justify-content:space-between; padding:0.85rem; background:var(--bg-card); border:1px solid var(--border); border-radius:0.5rem;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <strong style="font-size:0.9rem; color:var(--text-heading);">Digital UPI Payments (QR Code)</strong>
+                    <span class="badge badge-success" style="font-size:0.72rem;">Default · Always Enabled</span>
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Direct QR code scan &amp; pay via any UPI app
+                    (GPay, PhonePe, Paytm, CRED).</div>
+                </div>
+                <input type="checkbox" checked disabled style="width:20px; height:20px; opacity:0.85;" />
+              </div>
+
+              <label
+                style="display:flex; align-items:flex-start; justify-content:space-between; padding:0.85rem; background:var(--bg-card); border:1px solid var(--border); border-radius:0.5rem; cursor:pointer;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <strong style="font-size:0.9rem; color:var(--text-heading);">Cash on Delivery (COD)</strong>
+                    <span class="badge badge-info" style="font-size:0.72rem;">Doorstep Cash</span>
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Customers confirm order with pre-purchase
+                    verification and pay cash upon package arrival.</div>
+                </div>
+                <input type="checkbox" id="toggleMethodCod" checked style="width:20px; height:20px; cursor:pointer;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- OFFLINE PAYMENT MODALITIES -->
+          <div id="panelOfflineMode" hidden class="settings-group-box">
+            <div style="font-size:0.88rem; font-weight:700; color:var(--warning); margin-bottom:0.75rem;">🏬 Offline
+              Counter Payment Options</div>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div
+                style="display:flex; align-items:flex-start; justify-content:space-between; padding:0.85rem; background:var(--bg-card); border:1px solid var(--border); border-radius:0.5rem;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <strong style="font-size:0.9rem; color:var(--text-heading);">Digital UPI Payments (QR Code)</strong>
+                    <span class="badge badge-success" style="font-size:0.72rem;">Default · Always Enabled</span>
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Customer scans dynamic QR code on screen at
+                    billing counter.</div>
+                </div>
+                <input type="checkbox" checked disabled style="width:20px; height:20px; opacity:0.85;" />
+              </div>
+
+              <label
+                style="display:flex; align-items:flex-start; justify-content:space-between; padding:0.85rem; background:var(--bg-card); border:1px solid var(--border); border-radius:0.5rem; cursor:pointer;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <strong style="font-size:0.9rem; color:var(--text-heading);">Cash</strong>
+                    <span class="badge badge-info" style="font-size:0.72rem;">Billing Till</span>
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Customer pays physical cash at till. Cashier
+                    verifies note and approves in Cashier Dock.</div>
+                </div>
+                <input type="checkbox" id="toggleMethodCash" checked style="width:20px; height:20px; cursor:pointer;" />
+              </label>
+
+              <label
+                style="display:flex; align-items:flex-start; justify-content:space-between; padding:0.85rem; background:var(--bg-card); border:1px solid var(--border); border-radius:0.5rem; cursor:pointer;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <strong style="font-size:0.9rem; color:var(--text-heading);">Card</strong>
+                    <span class="badge badge-info" style="font-size:0.72rem;">Store POS Terminal</span>
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Customer swipes or taps card on physical store
+                    POS machine.</div>
+                </div>
+                <input type="checkbox" id="toggleMethodCard" checked style="width:20px; height:20px; cursor:pointer;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Offline Instructions -->
+          <div class="settings-group-box">
+            <div style="font-size:0.88rem; font-weight:700; color:var(--text-heading); margin-bottom:1rem;">🏪 In-Store
+              Till &amp; POS Instructions</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Cash at Till
+                  Counter Instructions</label>
+                <input id="settingCounterInstructions" type="text"
+                  placeholder="e.g. Please proceed to Billing Counter and present this screen to Cashier"
+                  style="width:100%;" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem;">Card POS
+                  Counter Instructions</label>
+                <input id="settingCardCounterInstructions" type="text"
+                  placeholder="e.g. Please swipe, insert, or tap your card on the store POS terminal."
+                  style="width:100%;" />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%; padding:0.75rem;"
+            onclick="saveMerchantBrandingAndToggles()">
+            💾 Save Selling Mode &amp; Payment Modalities
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 3: DEVELOPER & INFRASTRUCTURE HUB (Merged Control Center)          -->
+    <!-- ========================================================================= -->
+    <div id="sectionDeveloperHub" hidden>
+
+      <!-- SUB-VIEW: DEVELOPER TOOLS -> PAYMENT SIMULATOR (FEATURE 65) -->
+      <div id="subViewDevSimulator" hidden>
+        <!-- Header Banner -->
+        <div class="card"
+          style="border:1px solid #3b82f6; background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05); margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+                <span style="font-size:1.5rem;">🎮</span>
+                <h2 style="margin:0; font-size:1.35rem; color:#0f172a; font-weight:800;">Developer Tools → Payment
+                  Simulator</h2>
+                <span class="badge"
+                  style="background:#2563eb; color:#ffffff; font-size:0.75rem; padding:0.25rem 0.65rem;">DEVELOPER
+                  TESTING ONLY</span>
+              </div>
+              <p
+                style="font-size:0.86rem; color:var(--text-muted); margin:0.4rem 0 0 0; max-width:820px; line-height:1.5;">
+                Simulate incoming bank SMS and Gmail payment notifications against real checkout sessions.
+                The observation enters the <strong>REAL 6-stage verification engine</strong> without shortcuts.
+                The real engine decides whether it passes, fails, or triggers fraud detection.
+              </p>
+            </div>
+            <!-- Test Mode Quick Status / Enable -->
+            <div
+              style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.75rem;">
+              <div style="font-size:0.8rem;">
+                <div style="color:#64748b; font-size:0.72rem; text-transform:uppercase;">Test Mode Status</div>
+                <strong id="simTestModeStatus" style="color:#d97706;">Checking...</strong>
+              </div>
+              <button id="simBtnEnableTestMode" class="btn btn-primary" onclick="simQuickEnableTestMode()"
+                style="font-size:0.78rem; padding:0.4rem 0.8rem; background:#f59e0b; border-color:#d97706; color:#ffffff; font-weight:700;">
+                Enable Test Mode
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Customer & Active Payment Session Card -->
+        <div class="card" style="border:1px solid var(--border); background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05); margin-bottom:1.5rem;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;">
+
+            <!-- Column 1: Customer Selection -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <strong style="color:#0f172a; font-size:0.95rem; display:flex; align-items:center; gap:0.5rem;">
+                  <span>👤</span> Target Customer
+                </strong>
+                <button class="btn btn-secondary" onclick="simFetchCustomers()"
+                  style="font-size:0.72rem; padding:0.25rem 0.6rem;">
+                  ↻ Reload
+                </button>
+              </div>
+              <div style="margin-bottom:0.75rem;">
+                <input type="text" id="simCustomerSearchInput" placeholder="Search customer (Name, Mobile, Email)..."
+                  oninput="simFilterCustomers(this.value)"
+                  style="width:100%; box-sizing:border-box; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.84rem;" />
+              </div>
+              <select id="simCustomerSelect" size="4" onchange="simSelectCustomer(this.value)"
+                style="width:100%; box-sizing:border-box; background:#f8fafc; color:#0f172a; border:1px solid #e2e8f0; border-radius:6px; padding:0.5rem; font-size:0.82rem; min-height:110px;">
+                <option value="" disabled selected>Loading existing customers...</option>
+              </select>
+
+              <!-- Selected Customer Details -->
+              <div id="simSelectedCustomerBox"
+                style="margin-top:0.75rem; padding:0.85rem; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; display:none;">
+                <div style="font-size:0.74rem; color:#64748b; text-transform:uppercase; margin-bottom:0.25rem; font-weight:700;">Selected Customer</div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <strong id="simCustName" style="color:#0f172a; font-size:1rem;">-</strong>
+                  <span id="simCustPhone" style="color:#0284c7; font-family:monospace; font-size:0.84rem; font-weight:700;">-</span>
+                </div>
+                <div id="simCustEmail" style="color:#64748b; font-size:0.8rem; margin-top:0.2rem;">-</div>
+              </div>
+            </div>
+
+            <!-- Column 2: Active Payment Session Selection -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <strong style="color:#0f172a; font-size:0.95rem; display:flex; align-items:center; gap:0.5rem;">
+                  <span>💳</span> Active Payment Sessions
+                </strong>
+                <button class="btn btn-secondary" onclick="simReloadSessions()"
+                  style="font-size:0.72rem; padding:0.25rem 0.6rem;">
+                  ↻ Refresh Sessions
+                </button>
+              </div>
+              <div id="simSessionsList"
+                style="min-height:160px; max-height:220px; overflow-y:auto; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:0.5rem;">
+                <div style="color:#64748b; font-size:0.82rem; text-align:center; padding:2rem 1rem;">
+                  Please select a customer on the left to inspect their active payment sessions.
+                </div>
+              </div>
+
+              <!-- Terminal Session Notice (Requirement 6) -->
+              <div id="simTerminalNotice"
+                style="display:none; margin-top:0.75rem; padding:0.75rem 1rem; border-radius:8px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:0.84rem; font-weight:700;">
+                ⚠️ SESSION NO LONGER ACTIVE — Observation injection disabled for terminal sessions.
+              </div>
+
+              <!-- Selected Session Details Bar -->
+              <div id="simSelectedSessionBar"
+                style="display:none; margin-top:0.75rem; padding:0.75rem 1rem; border-radius:8px; background:#eff6ff; border:1px solid #bfdbfe; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <span style="font-size:0.72rem; color:#1e40af; text-transform:uppercase; font-weight:700;">Target Session</span>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.15rem;">
+                    <strong id="simSelectedSessionId"
+                      style="color:#0284c7; font-family:monospace; font-size:0.84rem;">-</strong>
+                    <span id="simSelectedSessionOrder" style="color:#334155; font-size:0.82rem; font-weight:600;">-</span>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div id="simSelectedSessionAmount" style="color:#16a34a; font-weight:800; font-size:1.05rem;">-</div>
+                  <span id="simSelectedSessionBadge" class="badge"
+                    style="font-size:0.7rem; padding:0.2rem 0.5rem; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;">ACTIVE</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Two Independent Streams: SMS & Gmail (Section 8-15) -->
+        <div
+          style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+
+          <!-- SMS STREAM PANEL -->
+          <div class="card" style="border:1px solid var(--border); background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+            <div
+              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+              <strong style="color:#0284c7; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>📱</span> SMS STREAM
+              </strong>
+              <span style="font-size:0.74rem; color:#64748b;">100% Customizable · Any String</span>
+            </div>
+
+            <div style="margin-bottom:1rem;">
+              <label style="display:block; font-size:0.8rem; color:#334155; margin-bottom:0.35rem; font-weight:700;">
+                Sender / Short Code
+              </label>
+              <input type="text" id="simSmsSender" value="HDFCBK"
+                placeholder="e.g. HDFCBK, AXISBK, 8796266491, arbitrary string..."
+                style="width:100%; box-sizing:border-box; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.84rem; font-family:monospace;" />
+            </div>
+
+            <div style="margin-bottom:1rem;">
+              <label style="display:block; font-size:0.8rem; color:#334155; margin-bottom:0.35rem; font-weight:700;">
+                SMS Content (Free-Form Raw Text)
+              </label>
+              <textarea id="simSmsContent" rows="4"
+                placeholder="e.g. A/C XX1234 credited with Rs 499.00 CR. Ref 123456789012"
+                style="width:100%; box-sizing:border-box; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; padding:0.75rem; font-size:0.84rem; font-family:monospace; resize:vertical;"></textarea>
+              <div style="font-size:0.72rem; color:#64748b; margin-top:0.25rem;">Exact text preserved verbatim as
+                <code>raw</code>.
+              </div>
+            </div>
+
+            <div style="margin-bottom:1.25rem;">
+              <label style="display:block; font-size:0.8rem; color:#334155; margin-bottom:0.35rem; font-weight:700;">
+                Received Time
+              </label>
+              <div style="display:flex; gap:0.5rem; margin-bottom:0.4rem;">
+                <select id="simSmsTimeType" onchange="simToggleTimeInput('SMS')"
+                  style="background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.4rem 0.65rem; border-radius:6px; font-size:0.82rem;">
+                  <option value="CURRENT">Current Server Time</option>
+                  <option value="CUSTOM">Custom Timestamp</option>
+                </select>
+              </div>
+              <input type="text" id="simSmsCustomTime"
+                placeholder="YYYY-MM-DDTHH:mm:ss.sssZ (e.g. 2026-10-04T11:45:21Z)"
+                style="display:none; width:100%; box-sizing:border-box; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.45rem 0.75rem; border-radius:6px; font-size:0.82rem; font-family:monospace;" />
+            </div>
+
+            <button id="simBtnPushSms" class="btn btn-primary" onclick="simInjectObservation('SMS')"
+              style="width:100%; background:#2563eb; border-color:#1d4ed8; padding:0.65rem; font-size:0.92rem; font-weight:800; display:flex; justify-content:center; align-items:center; gap:0.5rem;">
+              <span>🚀</span> PUSH SMS TO STREAM
+            </button>
+          </div>
+
+          <!-- GMAIL STREAM PANEL -->
+          <div class="card" style="border:1px solid var(--border); background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+            <div
+              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+              <strong style="color:#db2777; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>✉️</span> GMAIL STREAM
+              </strong>
+              <span style="font-size:0.74rem; color:#64748b;">100% Customizable · Any String</span>
+            </div>
+
+            <div style="margin-bottom:1rem;">
+              <label style="display:block; font-size:0.8rem; color:#334155; margin-bottom:0.35rem; font-weight:700;">
+                Sender Email Address
+              </label>
+              <input type="text" id="simGmailSender" value="notification@yourbank.bank.in"
+                placeholder="e.g. notification@yourbank.bank.in, test@gmail.com, arbitrary email..."
+                style="width:100%; box-sizing:border-box; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.84rem; font-family:monospace;" />
+            </div>
+
+            <div style="margin-bottom:1rem;">
+              <label style="display:block; font-size:0.8rem; color:#334155; margin-bottom:0.35rem; font-weight:700;">
+                Gmail Content (Free-Form Raw Text)
+              </label>
+              <textarea id="simGmailContent" rows="4"
+                placeholder="e.g. Dear Customer, INR 499.00 credited to Account ending 1234 on 04-Oct-2026. Ref UPI/123456789012"
+                style="width:100%; box-sizing:border-box; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; padding:0.75rem; font-size:0.84rem; font-family:monospace; resize:vertical;"></textarea>
+              <div style="font-size:0.72rem; color:#64748b; margin-top:0.25rem;">Exact body preserved verbatim as
+                <code>raw</code>.
+              </div>
+            </div>
+
+            <div style="margin-bottom:1.25rem;">
+              <label style="display:block; font-size:0.8rem; color:#334155; margin-bottom:0.35rem; font-weight:700;">
+                Received Time
+              </label>
+              <div style="display:flex; gap:0.5rem; margin-bottom:0.4rem;">
+                <select id="simGmailTimeType" onchange="simToggleTimeInput('GMAIL')"
+                  style="background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.4rem 0.65rem; border-radius:6px; font-size:0.82rem;">
+                  <option value="CURRENT">Current Server Time</option>
+                  <option value="CUSTOM">Custom Timestamp</option>
+                </select>
+              </div>
+              <input type="text" id="simGmailCustomTime"
+                placeholder="YYYY-MM-DDTHH:mm:ss.sssZ (e.g. 2026-10-04T11:45:21Z)"
+                style="display:none; width:100%; box-sizing:border-box; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.45rem 0.75rem; border-radius:6px; font-size:0.82rem; font-family:monospace;" />
+            </div>
+
+            <button id="simBtnPushGmail" class="btn btn-primary" onclick="simInjectObservation('GMAIL')"
+              style="width:100%; background:#db2777; border-color:#be185d; padding:0.65rem; font-size:0.92rem; font-weight:800; display:flex; justify-content:center; align-items:center; gap:0.5rem;">
+              <span>🚀</span> PUSH GMAIL TO STREAM
+            </button>
+          </div>
+
+        </div>
+
+        <!-- PROCESSING RESULT INSPECTOR (Section 21 & 22) -->
+        <div id="simResultInspectorCard" class="card"
+          style="display:none; border:1px solid var(--border); background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05); margin-bottom:1.5rem;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <span style="font-size:1.3rem;">🔬</span>
+              <h3 style="margin:0; font-size:1.15rem; color:#0f172a; font-weight:800;">Processing Result Inspector</h3>
+              <span id="simResultStatusBadge" class="badge"
+                style="font-size:0.82rem; padding:0.3rem 0.75rem;">UNKNOWN</span>
+            </div>
+            <div id="simResultMessageId" style="font-size:0.78rem; color:#64748b; font-family:monospace;"></div>
+          </div>
+
+          <!-- Target & Extracted Fields Grid -->
+          <div
+            style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem; margin-bottom:1.25rem;">
+            <div style="background:#f8fafc; padding:0.65rem 0.85rem; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">Target Session</div>
+              <div id="simResTargetSession"
+                style="font-weight:700; color:#0f172a; font-size:0.85rem; font-family:monospace;">None</div>
+            </div>
+            <div style="background:#f8fafc; padding:0.65rem 0.85rem; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">Source</div>
+              <div id="simResSource" style="font-weight:700; color:#0f172a; font-size:0.85rem;">-</div>
+            </div>
+            <div style="background:#f8fafc; padding:0.65rem 0.85rem; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">Amount</div>
+              <div id="simResAmount" style="font-weight:800; color:#0284c7; font-size:0.95rem;">-</div>
+            </div>
+            <div style="background:#f8fafc; padding:0.65rem 0.85rem; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">Reference / UTR</div>
+              <div id="simResRef" style="font-weight:700; color:#0f172a; font-size:0.82rem; font-family:monospace;">-
+              </div>
+            </div>
+            <div style="background:#f8fafc; padding:0.65rem 0.85rem; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">Failing Reason</div>
+              <div id="simResReason" style="font-weight:700; color:#dc2626; font-size:0.82rem;">None</div>
+            </div>
+          </div>
+
+          <!-- 6-Stage Execution Visualizer -->
+          <div
+            style="font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">
+            Pipeline Stage Inspection (Stages 1 – 6)
+          </div>
+          <div id="simStagesContainer" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem;">
+            <!-- Injected via JavaScript -->
+          </div>
+
+          <!-- Raw Text Verbatim -->
+          <div style="background:#f8fafc; padding:0.75rem 1rem; border-radius:6px; border:1px solid #e2e8f0;">
+            <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase; margin-bottom:0.25rem; font-weight:700;">Exact Raw
+              Payload (Preserved)</div>
+            <pre id="simResRawText"
+              style="margin:0; font-size:0.8rem; color:#0f172a; font-family:monospace; white-space:pre-wrap; word-break:break-all;"></pre>
+          </div>
+        </div>
+
+        <!-- SIMULATION HISTORY (Section 26 & 30) -->
+        <div class="card" style="border:1px solid var(--border); background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
+            <strong style="color:#0f172a; font-size:0.95rem; display:flex; align-items:center; gap:0.5rem;">
+              <span>📜</span> Simulation History
+            </strong>
+            <button class="btn btn-secondary" onclick="simFetchHistory()"
+              style="font-size:0.74rem; padding:0.25rem 0.65rem;">
+              ↻ Refresh History
+            </button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+              <thead>
+                <tr
+                  style="border-bottom:1px solid var(--border); color:#64748b; font-size:0.74rem; text-transform:uppercase;">
+                  <th style="padding:0.6rem 0.75rem;">Timestamp</th>
+                  <th style="padding:0.6rem 0.75rem;">Source</th>
+                  <th style="padding:0.6rem 0.75rem;">Sender</th>
+                  <th style="padding:0.6rem 0.75rem;">Session</th>
+                  <th style="padding:0.6rem 0.75rem;">Result</th>
+                  <th style="padding:0.6rem 0.75rem;">Message ID</th>
+                  <th style="padding:0.6rem 0.75rem;">Reason</th>
+                </tr>
+              </thead>
+              <tbody id="simHistoryTableBody">
+                <tr>
+                  <td colspan="7" style="padding:1.5rem; text-align:center; color:#64748b;">Loading history...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUB-VIEW 3.1: MERGED CONTROL CENTER & SYSTEM SUPERVISOR -->
+      <div id="subViewDevSupervisor">
+
+        <!-- CONFIRMATION MODAL: ENABLE TEST MODE (SECTION 11J) -->
+        <div id="modalEnableTestMode"
+          style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center;">
+          <div
+            style="max-width:480px; width:92%; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18);">
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+              <span style="font-size:1.8rem;">⚠️</span>
+              <h3 style="margin:0; font-size:1.25rem; color:#d97706; font-weight:800;">Enable Test Mode?</h3>
+            </div>
+            <p style="color:#334155; font-size:0.92rem; line-height:1.6; margin-bottom:1.5rem;">
+              Test Mode disables automatic banning for 10 minutes and is intended only for development and testing.
+            </p>
+            <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+              <button class="btn btn-secondary" onclick="closeTestModeModal()"
+                style="font-size:0.88rem; padding:0.55rem 1.1rem;">
+                Cancel
+              </button>
+              <button class="btn btn-primary" onclick="confirmEnableTestMode()"
+                style="background:#f59e0b; border-color:#d97706; color:#0f172a; font-weight:800; font-size:0.88rem; padding:0.55rem 1.25rem;">
+                Enable Test Mode
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEVELOPER TEST MODE CARD (SECTIONS 11A - 11L) -->
+        <div class="card" id="cardDeveloperTestMode"
+          style="border:1px solid #f59e0b; background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05); margin-bottom:1.5rem;">
+          <!-- Card Header & Autoritative Server Toggle -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div style="flex:1; min-width:280px;">
+              <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+                <span style="font-size:1.35rem;">🧪</span>
+                <strong style="font-size:1.15rem; color:#0f172a;">Developer Settings → Test Mode</strong>
+                <span class="badge" id="testModeBadge"
+                  style="font-size:0.75rem; padding:0.25rem 0.65rem; background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1;">[ OFF ] Test
+                  Mode</span>
+              </div>
+              <p
+                style="font-size:0.84rem; color:var(--text-muted); margin-top:0.4rem; max-width:760px; line-height:1.5;">
+                This mode exists ONLY for development, debugging, QA, and verification-engine testing.
+                While active, <strong>AUTOMATIC BAN SYSTEM = DISABLED</strong>.
+                Automatically expires after 10 minutes (strictly enforced server-side).
+              </p>
+              <div
+                style="display:flex; align-items:center; gap:0.75rem; margin-top:0.6rem; font-size:0.78rem; color:#64748b; flex-wrap:wrap;">
+                <span id="testModeBanStatusText">🛡️ Automatic Ban System: <strong style="color:#16a34a;">ENABLED
+                    (Normal)</strong></span>
+                <span id="testModeCountdownWrap" style="display:none; color:#d97706; font-weight:700;">⏱ Test Mode
+                  Enabled · Remaining time: <span id="testModeTimerVal">10:00</span></span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <label
+                style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; background:#fffbeb; padding:0.6rem 1.1rem; border-radius:0.5rem; border:1px solid #f59e0b;">
+                <input type="checkbox" id="toggleTestModeSwitch" onchange="handleTestModeToggle(this)"
+                  style="width:20px; height:20px; accent-color:#f59e0b; cursor:pointer;" />
+                <span style="font-size:0.88rem; font-weight:700; color:#92400e;" id="testModeLabelText">Test Mode</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Section 11J: Active Warning Banner -->
+          <div id="testModeActiveBanner"
+            style="display:none; margin-top:1.25rem; padding:1rem; border-radius:8px; background:#fef3c7; border:1px solid #f59e0b; color:#92400e;">
+            <div
+              style="display:flex; align-items:center; gap:0.6rem; font-weight:800; font-size:0.95rem; color:#b45309; margin-bottom:0.25rem;">
+              <span>⚠️</span> TEST MODE ACTIVE
+            </div>
+            <div style="font-size:0.84rem; color:#92400e; line-height:1.4;">
+              Automatic banning is temporarily disabled. This mode will automatically turn off after 10 minutes.
+            </div>
+          </div>
+
+          <!-- Section 11C: Test Payment Observation (Visible ONLY when Test Mode is Active) -->
+          <div id="sectionTestObservation"
+            style="display:none; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid #e2e8f0;">
+            <div
+              style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+              <div>
+                <h4 style="margin:0; font-size:1.05rem; color:#0f172a; display:flex; align-items:center; gap:0.5rem;">
+                  <span>🎯</span> Test Payment Observation
+                </h4>
+                <span style="font-size:0.78rem; color:#64748b;">Inject synthetic observations directly into the
+                  canonical 6-stage production verification flow.</span>
+              </div>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-secondary" onclick="generateFakeSmsTemplate()"
+                  style="font-size:0.8rem; padding:0.4rem 0.85rem; border-color:#d97706; color:#b45309;">
+                  📱 Create Fake SMS
+                </button>
+                <button class="btn btn-secondary" onclick="generateFakeGmailTemplate()"
+                  style="font-size:0.8rem; padding:0.4rem 0.85rem; border-color:#d97706; color:#b45309;">
+                  ✉️ Create Fake Gmail
+                </button>
+              </div>
+            </div>
+
+            <!-- Section 11G: Timestamp Control -->
+            <div
+              style="background:#f8fafc; padding:0.85rem; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:1.25rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+              <span style="font-size:0.82rem; color:#475569; font-weight:600;">⏱ Test Timestamp Control:</span>
+              <select id="selectTestTimestampControl" onchange="handleTestTimestampChange(this.value)"
+                style="background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.82rem;">
+                <option value="CURRENT">Current Server Timestamp (Normal)</option>
+                <option value="BEFORE_SESSION">Message received before session creation (-5 mins)</option>
+                <option value="AFTER_EXPIRY">Message received after session expiry (+30 mins)</option>
+                <option value="CUSTOM">Custom ISO Timestamp</option>
+              </select>
+              <input type="text" id="inputCustomTimestamp" placeholder="YYYY-MM-DDTHH:mm:ss.sssZ"
+                style="display:none; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.82rem; width:220px;" />
+            </div>
+
+            <!-- Sections 11D & 11E: Custom SMS & Custom Gmail Testing Grid -->
+            <div
+              style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
+              <!-- Custom SMS Input Area (Section 11D) -->
+              <div style="background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:1.1rem; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                  <strong style="color:#2563eb; font-size:0.92rem; display:flex; align-items:center; gap:0.4rem;">
+                    📱 SMS Test Message
+                  </strong>
+                  <input type="text" id="inputTestSmsSender" placeholder="Sender (e.g. VM-HDFCBK)" value="VM-HDFCBK"
+                    style="background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:4px; width:130px;" />
+                </div>
+                <textarea id="inputTestSmsMessage" rows="4"
+                  style="width:100%; box-sizing:border-box; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; padding:0.75rem; font-family:monospace; font-size:0.82rem; resize:vertical;"
+                  placeholder="Enter custom SMS content here...&#10;e.g. A/C XX1234 credited by Rs 499.00 CR. Ref 123456789012."></textarea>
+                <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.72rem; color:#64748b;">Preserved verbatim as <code>raw</code></span>
+                  <button class="btn btn-primary" id="btnInjectSms" onclick="injectTestMessage('SMS')"
+                    style="background:#2563eb; border-color:#1d4ed8; font-size:0.82rem; padding:0.45rem 1rem;">
+                    🚀 Inject Test SMS
+                  </button>
+                </div>
+              </div>
+
+              <!-- Custom Gmail Input Area (Section 11E) -->
+              <div style="background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:1.1rem; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                  <strong style="color:#db2777; font-size:0.92rem; display:flex; align-items:center; gap:0.4rem;">
+                    ✉️ Gmail Test Message
+                  </strong>
+                  <input type="text" id="inputTestGmailSender" placeholder="Sender (e.g. alerts@hdfc.bank.in)"
+                    value="alerts@hdfc.bank.in"
+                    style="background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:4px; width:170px;" />
+                </div>
+                <textarea id="inputTestGmailMessage" rows="4"
+                  style="width:100%; box-sizing:border-box; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; padding:0.75rem; font-family:monospace; font-size:0.82rem; resize:vertical;"
+                  placeholder="Enter custom email content here...&#10;e.g. Dear Customer, your account has been credited with INR 499.00 via UPI. UPI Ref No: 123456789012."></textarea>
+                <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.72rem; color:#64748b;">Preserved verbatim as <code>raw</code></span>
+                  <button class="btn btn-primary" id="btnInjectGmail" onclick="injectTestMessage('GMAIL')"
+                    style="background:#db2777; border-color:#be185d; font-size:0.82rem; padding:0.45rem 1rem;">
+                    🚀 Inject Test Gmail
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 11H: Test Results Display Inspector -->
+            <div id="testResultContainer"
+              style="display:none; background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:1.25rem; margin-bottom:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+              <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                  <h4 style="margin:0; font-size:1rem; color:#0f172a;">🔬 Complete Processing Result</h4>
+                  <span id="testResultStatusBadge" class="badge"
+                    style="font-size:0.8rem; padding:0.3rem 0.75rem;">UNKNOWN</span>
+                </div>
+                <div id="testResultMeta" style="font-size:0.8rem; color:#64748b; font-family:monospace;"></div>
+              </div>
+
+              <!-- Quick Metrics Summary -->
+              <div
+                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem; margin-bottom:1.25rem;">
+                <div style="background:#f8fafc; padding:0.6rem 0.8rem; border-radius:6px; border:1px solid #e2e8f0;">
+                  <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase;">Source</div>
+                  <div id="testResultSource" style="font-weight:700; color:#0f172a; font-size:0.9rem;">-</div>
+                </div>
+                <div style="background:#f8fafc; padding:0.6rem 0.8rem; border-radius:6px; border:1px solid #e2e8f0;">
+                  <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase;">Amount</div>
+                  <div id="testResultAmount" style="font-weight:700; color:#0284c7; font-size:0.9rem;">-</div>
+                </div>
+                <div style="background:#f8fafc; padding:0.6rem 0.8rem; border-radius:6px; border:1px solid #e2e8f0;">
+                  <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase;">Reference / UTR</div>
+                  <div id="testResultRef"
+                    style="font-weight:700; color:#0f172a; font-size:0.85rem; font-family:monospace;">-</div>
+                </div>
+                <div style="background:#f8fafc; padding:0.6rem 0.8rem; border-radius:6px; border:1px solid #e2e8f0;">
+                  <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase;">Failing Reason</div>
+                  <div id="testResultReason" style="font-weight:700; color:#dc2626; font-size:0.82rem;">None</div>
+                </div>
+              </div>
+
+              <!-- 6-Stage Execution Visualizer -->
+              <div
+                style="font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:0.6rem; text-transform:uppercase;">
+                Verification Pipeline Stage Inspection
+              </div>
+              <div id="testResultStagesList" style="display:flex; flex-direction:column; gap:0.5rem;">
+                <!-- Stages injected dynamically -->
+              </div>
+            </div>
+
+            <!-- Section 11I: Test Mode Audit Log Table -->
+            <div style="background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:1.1rem; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <strong style="color:#0f172a; font-size:0.88rem; display:flex; align-items:center; gap:0.4rem;">
+                  📜 Test Mode Audit Log
+                </strong>
+                <button class="btn btn-secondary" onclick="fetchTestModeAuditLog()"
+                  style="font-size:0.72rem; padding:0.25rem 0.6rem;">
+                  ↻ Refresh Audit
+                </button>
+              </div>
+              <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:left;">
+                  <thead>
+                    <tr style="border-bottom:1px solid #e2e8f0; color:#64748b;">
+                      <th style="padding:0.4rem;">Time</th>
+                      <th style="padding:0.4rem;">Action / Message ID</th>
+                      <th style="padding:0.4rem;">Source</th>
+                      <th style="padding:0.4rem;">Result</th>
+                      <th style="padding:0.4rem;">Raw Message</th>
+                    </tr>
+                  </thead>
+                  <tbody id="testAuditLogTableBody">
+                    <tr>
+                      <td colspan="5" style="padding:1rem; text-align:center; color:#64748b;">Loading test audit
+                        records...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- FALSE NARRATIVE DEV SWITCH (FEATURE 65 / DEV TOOLS) -->
+        <div class="card"
+          style="border:1px solid #8b5cf6; background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05); margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+            <div style="flex:1; min-width:280px;">
+              <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+                <span style="font-size:1.35rem;">🎭</span>
+                <strong style="font-size:1.15rem; color:#0f172a;">UPI Server Health: False Narrative Switch</strong>
+                <span class="badge badge-info" id="falseNarrativeBadge"
+                  style="font-size:0.75rem; padding:0.25rem 0.65rem;">⚪ OFF · REAL SERVER STATUS</span>
+              </div>
+              <p
+                style="font-size:0.84rem; color:var(--text-muted); margin-top:0.4rem; max-width:760px; line-height:1.5;">
+                Override the live observer status to test checkout portal behavior under different UPI server health
+                scenarios: <strong>Green</strong> (Healthy: Server Is Working), <strong>Yellow</strong> (Degraded: Extra
+                processing seconds), or <strong>Red</strong> (Downtime: Server Facing Issues).
+                <strong>Automatically turns off after 10 minutes</strong>.
+              </p>
+              <div
+                style="display:flex; align-items:center; gap:0.75rem; margin-top:0.6rem; font-size:0.78rem; color:#64748b; flex-wrap:wrap;">
+                <span>⚡ <strong>QR Code Invariant:</strong> The dynamic UPI QR code always loads and displays whether
+                  servers are UP, BUSY, or DOWN.</span>
+                <span id="falseNarrativeCountdownWrap" style="display:none; color:#7c3aed; font-weight:700;">⏱
+                  Auto-expiry: <span id="falseNarrativeTimerVal">10:00</span></span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end;">
+              <div
+                style="font-size:0.75rem; font-weight:700; color:#6d28d9; text-transform:uppercase; letter-spacing:0.04em;">
+                Select Narrative to Test:</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" id="btnNarrativeGreen" onclick="handleFalseNarrativeSelect('GREEN')"
+                  style="background:#064e3b; border:1px solid #059669; color:#6ee7b7; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s;">
+                  🟢 Green
+                </button>
+                <button type="button" id="btnNarrativeYellow" onclick="handleFalseNarrativeSelect('YELLOW')"
+                  style="background:#78350f; border:1px solid #d97706; color:#fde68a; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s;">
+                  🟡 Yellow
+                </button>
+                <button type="button" id="btnNarrativeRed" onclick="handleFalseNarrativeSelect('RED')"
+                  style="background:#7f1d1d; border:1px solid #dc2626; color:#fca5a5; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s;">
+                  🔴 Red
+                </button>
+                <button type="button" id="btnNarrativeOff" onclick="handleFalseNarrativeSelect('OFF')"
+                  style="background:#1e293b; border:1px solid #475569; color:#cbd5e1; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s;">
+                  ⚪ Off (Live)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- YOUPI SHOWCASE STORE PORT 5000 MASTER TOGGLE CARD -->
+        <div class="card"
+          style="border:1px solid #0284c7; background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <span style="font-size:1.35rem;">🛍️</span>
+                <strong style="font-size:1.15rem; color:#0f172a;">YOUPI Showcase Store (Port 5000)</strong>
+                <span class="badge" id="cardStoreBadge"
+                  style="font-size:0.8rem; padding:0.3rem 0.75rem;">CHECKING...</span>
+              </div>
+              <p
+                style="font-size:0.84rem; color:var(--text-muted); margin-top:0.4rem; max-width:720px; line-height:1.5;">
+                Toggle the public YOUPI Showcase Store on or off anytime. When disabled, the Node process is terminated
+                and host port <code>5000</code> is freed. When enabled, it launches instantly.
+              </p>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <a href="http://localhost:5000" id="btnOpenStoreLink" target="_blank" class="btn btn-secondary"
+                style="font-size:0.85rem; padding:0.6rem 1.1rem; text-decoration:none;">
+                🌐 Open Store (5000) ↗
+              </a>
+              <button class="btn btn-primary" id="btnToggleYoupiStore"
+                style="font-size:0.88rem; padding:0.65rem 1.4rem;" onclick="toggleYoupiStore()">
+                ⚡ Toggle Port 5000
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MANAGED PROCESSES SUPERVISOR TABLE -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🖥️ Managed Host Processes (Unified Control Center)</div>
+              <div class="card-subtext">Native child process supervisor. Zero external container dependencies. Start,
+                stop, or restart any gateway service independently.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button class="btn btn-success" onclick="startAllServices()">▶ Start All</button>
+              <button class="btn btn-danger" onclick="stopAllServices()">⏹ Stop All</button>
+              <button class="btn btn-secondary" onclick="loadServices()">🔄 Refresh</button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Service Name &amp; ID</th>
+                  <th>Port</th>
+                  <th>PID</th>
+                  <th>Status</th>
+                  <th>Uptime</th>
+                  <th>Process Controls</th>
+                </tr>
+              </thead>
+              <tbody id="servicesTableBody">
+                <tr>
+                  <td colspan="6" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Loading managed
+                    processes...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- REAL-TIME AGGREGATE TERMINAL LOGS CONSOLE -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">📜 Real-Time Aggregate Terminal Console</div>
+              <div class="card-subtext">Live SSE stdout/stderr broadcast stream from all active processes.</div>
+            </div>
+            <div style="display:flex; gap:0.6rem; align-items:center;">
+              <select id="logServiceFilter" style="padding:0.4rem 0.75rem; font-size:0.78rem;" onchange="filterLogs()">
+                <option value="ALL">All Services</option>
+                <option value="payment-api">payment-api (6100)</option>
+                <option value="checkout-portal">checkout-portal (7000)</option>
+                <option value="merchant-admin">merchant-admin (6001)</option>
+                <option value="coin-wallet-store">coin-wallet-store (5000)</option>
+                <option value="sms-observer">sms-observer (6002)</option>
+              </select>
+              <button class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.78rem;"
+                onclick="clearLogsConsole()">Clear Console</button>
+            </div>
+          </div>
+
+          <div class="terminal-container" id="terminalLogWindow">
+            <div class="log-line log-system">
+              <span class="log-ts">[Ready]</span> Unified Control Center operational. Awaiting log streams...
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUB-VIEW 3.2: CLOUDFLARE TUNNEL CONFIGURATION (Single Port 7000 Master Gateway) -->
+      <div id="subViewDevCloudflare" hidden>
+        <div class="card" id="cardCloudflareConfig" style="background:#ffffff; border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div class="card-header" style="border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.5rem;">
+            <div>
+              <div class="card-heading" style="color:#0f172a; font-size:1.15rem; font-weight:800;">☁️ Cloudflare Tunnel &amp; Live Gateway Routing</div>
+              <div class="card-subtext" style="color:#64748b; font-size:0.85rem; margin-top:2px;">
+                Single master port architecture. Route your domain to <code>http://localhost:7000</code> to serve Checkout, Dashboard, API, Webhooks, and Observers.
+              </div>
+            </div>
+            <span class="badge badge-info" id="envModeDisplayBadge" style="font-weight:700; font-size:0.8rem; padding:0.4rem 0.8rem;">💻 LOCALHOST MODE</span>
+          </div>
+
+          <!-- Mode Segmented Switch -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div id="btnEnvLocalhost" onclick="setEnvMode('localhost')"
+              style="background:#f0f9ff; border:2px solid #0284c7; border-radius:0.75rem; padding:1.2rem; cursor:pointer; transition:all 0.2s;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <strong style="font-size:1rem; color:#0f172a;">💻 Localhost Mode (Development)</strong>
+                <span class="badge badge-primary" id="badgeLocalhostActive">ACTIVE</span>
+              </div>
+              <p style="font-size:0.82rem; color:#475569; margin:0; line-height:1.4;">
+                Direct local development over single master port <code>http://localhost:7000</code>.
+              </p>
+            </div>
+
+            <div id="btnEnvProduction" onclick="setEnvMode('production')"
+              style="background:#f8fafc; border:1px solid var(--border); border-radius:0.75rem; padding:1.2rem; cursor:pointer; transition:all 0.2s;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <strong style="font-size:1rem; color:#0f172a;">🌍 Production Mode (Cloudflare Tunnel)</strong>
+                <span class="badge badge-success" id="badgeProductionActive" style="display:none;">ACTIVE</span>
+              </div>
+              <p style="font-size:0.82rem; color:#64748b; margin:0; line-height:1.4;">
+                Live internet HTTPS routing with automatic SSL using Cloudflare Tunnel.
+              </p>
+            </div>
+          </div>
+
+          <!-- Cloudflare Configuration Form -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:0.75rem; padding:1.25rem; margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; flex-wrap:wrap; gap:0.5rem;">
+              <div style="font-size:0.95rem; font-weight:800; color:#0284c7;">☁️ Cloudflare Domain &amp; Prefix Setup</div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:0.78rem; color:#64748b; font-weight:600;">Active Gateway URL:</span>
+                <span id="dynamicGatewayPreviewPill" style="background:#ecfdf5; border:1px solid #a7f3d0; color:#047857; font-weight:800; padding:3px 10px; border-radius:6px; font-family:monospace; font-size:0.84rem;">http://localhost:7000</span>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:2fr 1fr 1.3fr; gap:1rem; align-items:flex-end;">
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">
+                  1. Cloudflare Domain
+                </label>
+                <input id="settingDomainTld" type="text" placeholder="example.com" value=""
+                  oninput="updateCloudflarePreview()"
+                  style="width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:8px; padding:0.65rem 0.85rem; font-weight:600;" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">
+                  2. Deployment Prefix
+                </label>
+                <input id="settingDomainPrefix" type="text" placeholder="pay" value="pay"
+                  oninput="updateCloudflarePreview()"
+                  style="width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:8px; padding:0.65rem 0.85rem; font-weight:600;" />
+              </div>
+              <div>
+                <button class="btn btn-primary" style="width:100%; padding:0.68rem; justify-content:center; font-weight:700;"
+                  onclick="saveDomainSettings()">💾 SAVE CONFIGURATION</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- GENERATED ROUTES LIST (Unified Single Port 7000) -->
+          <div style="margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <div>
+                <div style="font-size:0.95rem; font-weight:800; color:#0f172a;">🛣️ CLOUDFLARE TUNNEL MAPPING RULE</div>
+                <div style="font-size:0.8rem; color:#64748b;">All services are unified on Port 7000. Create this exact route in Cloudflare Zero Trust.</div>
+              </div>
+              <button class="btn btn-secondary" style="font-size:0.75rem;" onclick="copyAllMappings()">📋 COPY MAPPINGS</button>
+            </div>
+            <div id="cloudflareRoutesContainer" style="display:flex; flex-direction:column; gap:0.75rem;">
+              <!-- Dynamically populated route cards -->
+            </div>
+          </div>
+
+          <!-- REAL CHECKOUT & FRONTEND INTEGRATION GUIDE -->
+          <div style="background:#ffffff; border:1px solid var(--border); border-radius:0.75rem; padding:1.25rem; margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <div style="font-size:0.95rem; font-weight:800; color:#0f172a;">⚡ REAL-TIME CHECKOUT INTEGRATION (Universal 1-Script SDK)</div>
+              <span class="badge badge-success" style="font-size:0.72rem;">ZERO-FEE UPI</span>
+            </div>
+            <p style="font-size:0.82rem; color:#64748b; margin-bottom:1rem; line-height:1.5;">
+              Copy-paste these dynamic snippets directly into your website (React, Next.js, PHP, HTML, WordPress). The script automatically blurs the background and opens the high-converting UPI modal.
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <!-- Snippet 1: Script tag -->
+              <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                  <span style="font-size:0.82rem; font-weight:700; color:#334155;">Step 1: Add Script to HTML &lt;head&gt; or &lt;body&gt;</span>
+                  <button class="btn btn-secondary" style="font-size:0.72rem; padding:3px 8px;" onclick="copySnippet('snippetScriptTag')">📋 Copy Script Tag</button>
+                </div>
+                <pre id="snippetScriptTag" style="margin:0; background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:0.75rem; font-size:0.82rem; font-family:monospace; color:#0f172a; overflow-x:auto;">&lt;script src="http://localhost:7000/youpi.js" data-youpi-key="YOUR_MERCHANT_KEY"&gt;&lt;/script&gt;</pre>
+              </div>
+
+              <!-- Snippet 2: Button -->
+              <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                  <span style="font-size:0.82rem; font-weight:700; color:#334155;">Step 2: One-Click UPI Payment Button (Zero-JS)</span>
+                  <button class="btn btn-secondary" style="font-size:0.72rem; padding:3px 8px;" onclick="copySnippet('snippetButtonTag')">📋 Copy Button HTML</button>
+                </div>
+                <pre id="snippetButtonTag" style="margin:0; background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:0.75rem; font-size:0.82rem; font-family:monospace; color:#0f172a; overflow-x:auto;">&lt;button data-youpi-pay data-order-id="ORDER_1001" data-amount="499" data-currency="INR" data-customer-name="Mohit" data-customer-phone="9876543210"&gt;Pay ₹499 via UPI&lt;/button&gt;</pre>
+              </div>
+
+              <!-- Snippet 3: Programmatic JS -->
+              <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                  <span style="font-size:0.82rem; font-weight:700; color:#334155;">Step 3: Programmatic JavaScript API (React / Next / Vue)</span>
+                  <button class="btn btn-secondary" style="font-size:0.72rem; padding:3px 8px;" onclick="copySnippet('snippetJsApi')">📋 Copy JS Code</button>
+                </div>
+                <pre id="snippetJsApi" style="margin:0; background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:0.75rem; font-size:0.82rem; font-family:monospace; color:#0f172a; overflow-x:auto;">Youpi.pay({
+  order_id: "ORDER_1001",
+  amount: 499.00,
+  customer: { name: "Mohit", phone: "9876543210" },
+  handler: function(response) {
+    console.log("Payment Confirmed! UTR:", response.utr);
+  }
+});</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- CLOUDFLARE DASHBOARD INSTRUCTIONS -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:0.75rem; padding:1.25rem;">
+            <div style="font-size:0.92rem; font-weight:800; color:#0284c7; margin-bottom:0.75rem;">📖 EXACT CLOUDFLARE DASHBOARD INSTRUCTIONS</div>
+            <div
+              style="display:flex; flex-wrap:wrap; align-items:center; gap:0.4rem; margin-bottom:1rem; font-size:0.8rem; font-family:monospace; background:#ffffff; padding:0.75rem; border-radius:0.5rem; border:1px solid #e2e8f0;">
+              <span style="color:#0284c7; font-weight:700;">Cloudflare Dashboard</span>
+              <span style="color:#94a3b8;">→</span>
+              <span style="color:#0284c7; font-weight:700;">Zero Trust / Networks</span>
+              <span style="color:#94a3b8;">→</span>
+              <span style="color:#0284c7; font-weight:700;">Tunnels</span>
+              <span style="color:#94a3b8;">→</span>
+              <span style="color:#0284c7; font-weight:700;">Public Hostname</span>
+              <span style="color:#94a3b8;">→</span>
+              <span style="color:#0284c7; font-weight:700;">Add Route: <span id="cfInstructionHost">pay.example.com</span></span>
+              <span style="color:#94a3b8;">→</span>
+              <span style="color:#0284c7; font-weight:700;">Service: <code>http://localhost:7000</code></span>
+              <span style="color:#94a3b8;">→</span>
+              <span style="color:#059669; font-weight:bold;">Save</span>
+            </div>
+
+            <div style="font-size:0.84rem; color:#475569; line-height:1.6;">
+              <p style="margin:0 0 0.5rem 0;">• <strong>Unified Sovereign Host:</strong> A single tunnel route handles everything: Client Script (<code>/youpi.js</code>), Checkout Portal (<code>/checkout/:id</code>), Merchant Admin &amp; Login (<code>/login</code>, <code>/dashboard</code>), and Payment API (<code>/api/*</code>).</p>
+              <p style="margin:0 0 0.5rem 0;">• <strong>Android Companion App:</strong> Set the Gateway Server URL in your Android app to <code id="cfAndroidSyncUrl">https://pay.example.com</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 3.4: API KEYS, WEBHOOKS & DEVELOPER STUDIO (RAZORPAY CALIBER) -->
+      <div id="subViewDevWebhooks" hidden>
+
+        <!-- RAZORPAY API KEYS GENERATED POPUP MODAL -->
+        <div id="modalApiKeyGenerated" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.6); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1.25rem;">
+          <div style="background:var(--bg-card, #ffffff); border:1px solid var(--border, #e2e8f0); border-radius:1rem; max-width:540px; width:100%; box-shadow:0 25px 60px -15px rgba(0,0,0,0.18); overflow:hidden;">
+            <div style="padding:1.5rem 1.75rem 1.25rem; border-bottom:1px solid var(--border, #e2e8f0); display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <span style="font-size:1.4rem;">🎉</span>
+                <div>
+                  <h3 style="margin:0; font-size:1.1rem; color:var(--text-heading, #0f172a); font-weight:800;">API Keys Generated Successfully</h3>
+                  <div style="font-size:0.75rem; color:var(--text-muted, #64748b); margin-top:2px;">Your sovereign payment gateway credentials</div>
+                </div>
+              </div>
+              <button type="button" onclick="closeApiKeyModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer; line-height:1;">✕</button>
+            </div>
+
+            <div style="padding:1.5rem 1.75rem; display:flex; flex-direction:column; gap:1.1rem;">
+              <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:0.5rem; padding:0.75rem 1rem; font-size:0.78rem; color:#b45309; line-height:1.45;">
+                ⚠️ <strong>Save your Key Secret now:</strong> For security reasons, the full <code>Key Secret</code> will not be displayed in full again once closed. Keep it secure and never share it publicly.
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted, #64748b); margin-bottom:0.35rem;">Key ID (Public / Client Key)</label>
+                <div style="display:flex; gap:0.4rem;">
+                  <input id="modalKeyId" type="text" readonly style="flex:1; font-family:ui-monospace,monospace; font-size:0.85rem; color:#0284c7; background:var(--bg-subtle, #f8fafc); border:1px solid var(--border, #e2e8f0); border-radius:6px; padding:0.5rem 0.75rem;" />
+                  <button type="button" class="btn btn-secondary" onclick="copyElementText('modalKeyId', 'Key ID copied!')">📋 Copy</button>
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted, #64748b); margin-bottom:0.35rem;">Key Secret (Private Secret Key)</label>
+                <div style="display:flex; gap:0.4rem;">
+                  <input id="modalKeySecret" type="text" readonly style="flex:1; font-family:ui-monospace,monospace; font-size:0.85rem; color:#059669; background:var(--bg-subtle, #f8fafc); border:1px solid var(--border, #e2e8f0); border-radius:6px; padding:0.5rem 0.75rem;" />
+                  <button type="button" class="btn btn-secondary" onclick="copyElementText('modalKeySecret', 'Key Secret copied!')">📋 Copy</button>
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted, #64748b); margin-bottom:0.35rem;">Webhook Signing Secret</label>
+                <div style="display:flex; gap:0.4rem;">
+                  <input id="modalWebhookSecret" type="text" readonly style="flex:1; font-family:ui-monospace,monospace; font-size:0.85rem; color:var(--text-heading, #0f172a); background:var(--bg-subtle, #f8fafc); border:1px solid var(--border, #e2e8f0); border-radius:6px; padding:0.5rem 0.75rem;" />
+                  <button type="button" class="btn btn-secondary" onclick="copyElementText('modalWebhookSecret', 'Webhook Secret copied!')">📋 Copy</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:1rem 1.75rem 1.5rem; background:var(--bg-subtle, #f8fafc); border-top:1px solid var(--border, #e2e8f0); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+              <button type="button" class="btn btn-secondary" onclick="downloadEnvFile()" style="font-size:0.82rem; padding:0.55rem 1rem;">
+                📥 Download .env File
+              </button>
+              <button type="button" class="btn btn-primary" onclick="closeApiKeyModal()" style="font-size:0.85rem; padding:0.55rem 1.5rem;">
+                ✓ Done, I Have Saved My Keys
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. RAZORPAY-GRADE ACTIVE API KEYS CARD -->
+        <div class="card" id="apiKeyMainCard" style="margin-bottom: 1.5rem;">
+          <div class="card-header" style="flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div class="card-heading" style="display:flex; align-items:center; gap:0.6rem;">
+                <span id="apiKeyCardTitle">🔑 API Keys &amp; Credentials</span>
+                <span id="apiKeyCardBadge" class="badge badge-success" style="font-size:0.72rem; padding:0.25rem 0.65rem; font-weight:800;">🟢 ACTIVE</span>
+              </div>
+              <div id="apiKeyCardSubtext" class="card-subtext">Use your Key ID in your frontend website / checkout button and Key Secret on your server. Click <strong>Generate API Key</strong> anytime to create a fresh pair.</div>
+            </div>
+            <div style="display:flex; gap:0.6rem; align-items:center;">
+              <button class="btn btn-secondary" onclick="downloadEnvFile()" style="font-size:0.8rem; padding:0.6rem 1rem;">
+                📥 Download .env
+              </button>
+              <button id="btnGenerateApiKey" class="btn btn-primary" onclick="generateApiKeyModal()" style="font-size:0.85rem; padding:0.6rem 1.3rem;">
+                ⚡ Generate API Key
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Keys Table (Razorpay Style) -->
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border); background:var(--bg-subtle); color:var(--text-muted); text-align:left;">
+                  <th style="padding:0.75rem 1rem;">Key ID (Public / Client)</th>
+                  <th style="padding:0.75rem 1rem;">Key Secret (Private)</th>
+                  <th style="padding:0.75rem 1rem;">Status</th>
+                  <th style="padding:0.75rem 1rem;">Created At</th>
+                  <th style="padding:0.75rem 1rem; text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:0.85rem 1rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                      <code id="displayApiKeyId" style="color:#0284c7; font-weight:700; font-family:monospace; font-size:0.85rem;">Loading...</code>
+                      <button type="button" class="quick-pill-btn" onclick="copyElementText('displayApiKeyId', 'Key ID copied!')" title="Copy Key ID">📋</button>
+                    </div>
+                  </td>
+                  <td style="padding:0.85rem 1rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                      <code id="displayApiKeySecret" style="color:var(--text-muted); font-family:monospace; font-size:0.85rem;">••••••••••••••••••••••••••••••••</code>
+                      <button type="button" class="quick-pill-btn" id="btnToggleDisplaySecret" onclick="toggleDisplaySecret()" title="Reveal/Hide Secret">👁️</button>
+                      <button type="button" class="quick-pill-btn" onclick="copyDisplaySecret()" title="Copy Secret">📋</button>
+                    </div>
+                  </td>
+                  <td style="padding:0.85rem 1rem;">
+                    <span class="badge badge-success">ACTIVE</span>
+                  </td>
+                  <td style="padding:0.85rem 1rem; color:var(--text-muted); font-size:0.78rem;" id="displayApiKeyDate">
+                    Just now
+                  </td>
+                  <td style="padding:0.85rem 1rem; text-align:right;">
+                    <button type="button" id="btnRegenerateKeyAction" class="btn btn-secondary" onclick="generateApiKeyModal()" style="font-size:0.75rem; padding:0.35rem 0.75rem;">
+                      🔄 Regenerate
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. WEBHOOK ENDPOINT CONFIGURATION & SECRETS -->
+        <div class="card" style="border-left: 4px solid var(--primary, #2563eb); margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🔐 Webhook Endpoints &amp; Cryptographic Secrets</div>
+              <div class="card-subtext">Configure your production endpoint to receive authoritative server-to-server HMAC-SHA256 signed payment notifications.</div>
+            </div>
+            <span class="badge badge-info" style="font-size:0.75rem;">HMAC-SHA256 SIGNED</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:1.25rem;">
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem; color:var(--text-heading);">
+                Production Webhook Destination URL
+              </label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input id="settingWebhookUrl" type="text" placeholder="https://yourstore.com/api/payment/webhook" style="flex:1;" />
+                <button class="btn btn-primary" style="white-space:nowrap; padding:0.6rem 1.25rem;" onclick="saveMerchantBrandingAndToggles()">
+                  💾 Save URL
+                </button>
+              </div>
+              <span style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:0.35rem;">
+                When a payment completes, YOUPI sends an HTTP POST with signed headers (<code>X-Gateway-Signature</code>, <code>X-Gateway-Delivery-Id</code>, <code>X-Gateway-Timestamp</code>).
+              </span>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.35rem; color:var(--text-heading);">
+                Webhook Signing Secret (Raw Body HMAC-SHA256)
+              </label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <div style="position:relative; flex:1;">
+                  <input id="settingWebhookSecret" type="password" readonly
+                    style="width:100%; color:#0284c7; font-family:ui-monospace,monospace; font-size:0.85rem; padding-right:4.5rem;" />
+                  <button type="button" id="btnToggleSecretVisibility" onclick="toggleSecretVisibility()"
+                    style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.75rem; font-weight:600; padding:4px 6px;">
+                    👁️ Show
+                  </button>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="copyWebhookSecret()" title="Copy signing secret">
+                  📋 Copy
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="regenerateWebhookSecret()" title="Regenerate signing secret" style="color:#d97706; border-color:rgba(217,119,6,0.3);">
+                  🔄 Regenerate
+                </button>
+              </div>
+              <span style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:0.35rem;">
+                🔒 <strong>CRITICAL RULE:</strong> Compute HMAC-SHA256 over raw unparsed request bytes before JSON parsing. Do not expose this secret on client websites.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. POLYGLOT VERIFICATION CODE SNIPPETS (READY TO USE) -->
+        <div class="card" style="margin-bottom: 1.5rem; border: 1px solid #1e293b;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">💻 Backend Signature Verification Snippets</div>
+              <div class="card-subtext">Drop-in code for your backend framework. These snippets are pre-populated with your active merchant secret and verify the HMAC-SHA256 signature with zero external dependencies.</div>
+            </div>
+          </div>
+
+          <!-- Code Language Tabs -->
+          <div style="display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <button type="button" class="btn btn-secondary active" id="tabLangExpress" onclick="switchWebhookSnippetTab('express')" style="font-size:0.8rem; padding:0.4rem 0.85rem;">
+              Node.js (Express)
+            </button>
+            <button type="button" class="btn btn-secondary" id="tabLangNext" onclick="switchWebhookSnippetTab('next')" style="font-size:0.8rem; padding:0.4rem 0.85rem;">
+              Next.js (App Router)
+            </button>
+            <button type="button" class="btn btn-secondary" id="tabLangFastAPI" onclick="switchWebhookSnippetTab('fastapi')" style="font-size:0.8rem; padding:0.4rem 0.85rem;">
+              Python (FastAPI)
+            </button>
+            <button type="button" class="btn btn-secondary" id="tabLangPhp" onclick="switchWebhookSnippetTab('php')" style="font-size:0.8rem; padding:0.4rem 0.85rem;">
+              PHP
+            </button>
+            <button type="button" class="btn btn-secondary" id="tabLangGo" onclick="switchWebhookSnippetTab('go')" style="font-size:0.8rem; padding:0.4rem 0.85rem;">
+              Go (net/http)
+            </button>
+          </div>
+
+          <div class="code-viewer-box">
+            <div class="code-viewer-top">
+              <span id="webhookSnippetLangTitle" style="font-size:0.75rem; font-weight:700; color:#38bdf8; font-family:monospace;">
+                Express.js Server Handler
+              </span>
+              <button type="button" id="btnCopyWebhookSnippet" class="btn btn-secondary" onclick="copyActiveWebhookSnippet()"
+                style="font-size:0.72rem; padding:0.25rem 0.65rem;">
+                📋 Copy Code
+              </button>
+            </div>
+            <pre class="code-viewer-pre" id="webhookSnippetCodeBlock">Loading verification code...</pre>
+          </div>
+        </div>
+
+        <!-- 4. UNIVERSAL ONE-SCRIPT FRONTEND QUICKSTART -->
+        <div class="card" style="border: 1px solid #1e293b;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🚀 Universal 2-Minute Frontend Integration</div>
+              <div class="card-subtext">Add the script tag and tag any HTML button with <code>data-youpi-pay</code> to launch the responsive payment modal. Works on static HTML, WordPress, Shopify, React, Next.js, and PHP.</div>
+            </div>
+          </div>
+
+          <div class="code-viewer-box">
+            <div class="code-viewer-top">
+              <span style="font-size:0.75rem; font-weight:700; color:#10b981; font-family:monospace;">
+                HTML Universal Embed
+              </span>
+              <button type="button" class="btn btn-secondary" onclick="copyFrontendSnippet()"
+                style="font-size:0.72rem; padding:0.25rem 0.65rem;">
+                📋 Copy HTML Snippet
+              </button>
+            </div>
+            <pre class="code-viewer-pre" id="frontendSnippetCodeBlock">Loading embed code...</pre>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- SUB-VIEW 3.5: ANDROID OBSERVER GATEWAY -->
+      <div id="subViewDevAndroid" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">📱 Android SMS Companion App &amp; Device Pairing</div>
+              <div class="card-subtext">Install the APK on your bank-linked phone and scan the pairing QR code to
+                auto-forward incoming bank credit SMS.</div>
+            </div>
+            <span class="badge badge-info" id="smsDevBadge">STANDBY</span>
+          </div>
+
+          <div
+            style="background:#f8fafc; border:1px solid var(--border); border-radius:0.75rem; padding:1.25rem; text-align:center; margin-bottom:1.5rem;">
+            <div style="font-size:0.9rem; font-weight:800; color:#0f172a; margin-bottom:0.75rem;">1. Scan to Pair Phone
+            </div>
+            <div id="smsPairQrBox"
+              style="width:240px; height:240px; margin:0 auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:0.75rem; padding:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+              Loading Pairing QR...
+            </div>
+            <div style="font-size:0.8rem; color:#64748b; margin:0.75rem 0;">
+              Enrollment Secret: <code id="smsTokenVal2" style="color:#0284c7; font-weight:700;">Loading...</code>
+              <button class="btn btn-secondary" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-left:0.5rem;"
+                onclick="copySmsToken()">📋 Copy</button>
+            </div>
+            <div style="display:flex; justify-content:center; gap:0.5rem;">
+              <button class="btn btn-secondary" onclick="fetchSmsPairQr()">🔄 Refresh QR</button>
+              <a class="btn btn-success" href="/youpi-sms-gateway.apk" download="youpi-sms-gateway.apk">📲 Download
+                Android APK</a>
+            </div>
+          </div>
+
+          <div style="margin-bottom:1.5rem;">
+            <div style="font-size:0.92rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Paired Mobile Observers</div>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Device Name</th>
+                    <th>Device ID</th>
+                    <th>Paired At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="smsDevicesTableBody">
+                  <tr>
+                    <td colspan="4" style="text-align:center; color:var(--text-muted); padding:1rem;">No devices paired yet. Scan QR above to pair.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Interactive Test Bank SMS Sender -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:0.5rem; padding:1rem;">
+            <div style="font-size:0.88rem; font-weight:800; color:#0284c7; margin-bottom:0.5rem;">🧪 Test Bank SMS Parser</div>
+            <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
+              <input type="text" id="testSmsSender" value="HDFCBK" placeholder="Sender (e.g. HDFCBK)"
+                style="width:120px; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a;" />
+              <input type="text" id="testSmsBody"
+                value="Dear Customer, A/C *1234 credited by Rs 500.00 on 30-Sep-26 by UPI/9212339720/REF987654321 - HDFC Bank"
+                placeholder="SMS Body" style="flex:1; min-width:240px; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a;" />
+              <button class="btn btn-primary" onclick="sendTestBankSms()">Dispatch</button>
+            </div>
+            <div id="testSmsResult" style="font-size:0.78rem; color:#94a3b8;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 3.6: GMAIL API & WHATSAPP PROTOCOLS -->
+      <div id="subViewDevProtocols" hidden>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <!-- Gmail Direct API -->
+          <div class="card" id="gmailObserverCard">
+            <div class="card-header">
+              <div>
+                <div class="card-heading">📧 Google Account & Gmail Direct API</div>
+                <div class="card-subtext">Official Google OAuth 2.0 automated observation for real-time UPI credit
+                  notifications.</div>
+              </div>
+              <span class="badge badge-info" id="gmailConfigBadge2">NOT CONFIGURED</span>
+            </div>
+
+            <!-- Hero Action Box: Automated One-Click Google Connect -->
+            <div id="gmailConnectHeroBox"
+              style="background:#f0f7ff; border:1px solid #bfdbfe; border-radius:0.75rem; padding:1.25rem; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:0.75rem;">
+              <div
+                style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
+                <div style="flex:1; min-width:260px;">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <span id="gmailHeroStatusDot"
+                      style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+                    <strong id="gmailHeroStatusTitle" style="font-size:0.95rem; color:#0f172a;">Google Account
+                      Disconnected</strong>
+                  </div>
+                  <div id="gmailHeroStatusDesc" style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
+                    Connect your bank-registered Google account with one click. When you click authorize, YouPI PG
+                    handles the full OAuth flow, acquires persistent offline credentials, and activates 1-second UPI
+                    credit polling.
+                  </div>
+                </div>
+
+                <!-- Primary Google Action Button -->
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                  <button type="button" id="btnGooglePrimaryAuth" class="btn btn-primary"
+                    onclick="startAutomatedGoogleAuth()"
+                    style="display:inline-flex; align-items:center; gap:0.6rem; padding:0.65rem 1.25rem; font-size:0.9rem; font-weight:700; background:#2563eb; color:#fff; border:none; border-radius:0.5rem; cursor:pointer; box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                      <path fill="#ffffff"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#ffffff"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#ffffff"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                      <path fill="#ffffff"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                    </svg>
+                    <span id="btnGooglePrimaryAuthLabel">Connect with Google (One-Click)</span>
+                  </button>
+                  <button type="button" id="btnGoogleDisconnect" class="btn btn-secondary"
+                    onclick="disconnectGmailAccount()"
+                    style="display:none; font-size:0.8rem; padding:0.65rem 0.9rem; color:#dc2626; border-color:#fca5a5;">
+                    ❌ Disconnect
+                  </button>
+                </div>
+              </div>
+
+              <!-- In-progress banner when popup is active -->
+              <div id="gmailAuthInProgressBanner"
+                style="display:none; background:#eff6ff; border:1px solid #3b82f6; border-radius:0.4rem; padding:0.6rem 0.85rem; font-size:0.82rem; color:#1d4ed8; align-items:center; gap:0.5rem;">
+                <span class="spinner"
+                  style="width:14px; height:14px; border:2px solid #3b82f6; border-top-color:transparent; border-radius:50%; display:inline-block; animation:spin 1s linear infinite;"></span>
+                <span>Google Authorization Window Active. Select your account and grant permissions to complete
+                  automatic setup...</span>
+              </div>
+            </div>
+
+            <!-- Live Connection Status Details -->
+            <div
+              style="background:#f8fafc; border:1px solid var(--border); border-radius:0.5rem; padding:0.85rem; margin-bottom:1rem; font-size:0.8rem; display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;">
+              <div><span style="color:#64748b;">OAuth Status:</span> <strong id="gmailOAuthStatusText"
+                  style="color:#dc2626;">DISCONNECTED</strong></div>
+              <div><span style="color:#64748b;">Token Status:</span> <strong id="gmailTokenStatusText"
+                  style="color:#64748b;">NOT CONFIGURED</strong></div>
+              <div style="grid-column: span 2; display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#64748b;">Connected Account:</span>
+                <strong id="gmailConnectedAccountText" style="color:#0284c7; font-family:monospace;">No account
+                  authorized</strong>
+              </div>
+              <div><span style="color:#64748b;">Last Successful Poll:</span> <span id="gmailLastPollText"
+                  style="color:#334155;">Never</span></div>
+              <div><span style="color:#64748b;">Observer Pipeline:</span> <span id="gmailLastSentText"
+                  style="color:#334155;">Standby</span></div>
+            </div>
+
+            <!-- Secondary Actions -->
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+              <button type="button" class="btn btn-secondary" onclick="testGmailConnection()">🔑 Test Live
+                Connection</button>
+              <button type="button" class="btn btn-secondary" onclick="startAutomatedGoogleAuth()">🔄 Re-authorize
+                Account</button>
+              <button type="button" class="btn btn-secondary" onclick="openGmailGuideModal()">📖 Setup Guide</button>
+            </div>
+
+            <div id="gmailTestResultBox"
+              style="display:none; padding:0.85rem; border-radius:0.5rem; font-size:0.82rem; margin-bottom:1rem;"></div>
+
+            <!-- Advanced Collapsible Configuration -->
+            <details
+              style="background:#f8fafc; border:1px solid var(--border); border-radius:0.5rem; padding:0.6rem 0.85rem;">
+              <summary style="cursor:pointer; font-size:0.78rem; font-weight:700; color:#475569; user-select:none;">
+                ⚙️ Advanced OAuth Credentials &amp; Manual Override (Optional)
+              </summary>
+              <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.85rem;">
+                <div>
+                  <label
+                    style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.2rem;">Google
+                    OAuth Client ID</label>
+                  <input type="text" id="gmailClientIdInput" placeholder="your-client-id.apps.googleusercontent.com"
+                    style="width:100%; font-family:monospace; font-size:0.8rem; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1;" />
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
+                    <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Google OAuth Client
+                    Secret</label>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.68rem; padding:0.1rem 0.4rem;"
+                      onclick="toggleGmailSecretVisibility()">👁️ Show/Hide</button>
+                  </div>
+                  <input type="password" id="gmailClientSecretInput" placeholder="your-google-client-secret"
+                    style="width:100%; font-family:monospace; font-size:0.8rem; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1;" />
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
+                    <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Exact Authorized
+                      Redirect URI</label>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.68rem; padding:0.1rem 0.4rem;"
+                      onclick="copyGmailRedirectUri()">📋 Copy</button>
+                  </div>
+                  <input type="text" id="gmailRedirectUriInput" readonly
+                    style="width:100%; font-family:monospace; font-size:0.8rem; background:#ffffff; color:#0284c7; border:1px solid #cbd5e1;" />
+                </div>
+                <div>
+                  <label
+                    style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.2rem;">Google
+                    Refresh Token</label>
+                  <input type="password" id="gmailRefreshTokenInput" placeholder="your-google-refresh-token"
+                    style="width:100%; font-family:monospace; font-size:0.8rem; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1;" />
+                </div>
+                <div>
+                  <button type="button" class="btn btn-primary" style="font-size:0.8rem; padding:0.4rem 0.8rem;"
+                    onclick="saveGmailCredentials()">💾 Save Manual Credentials</button>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <!-- WhatsApp Berry Protocol -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-heading">💬 WhatsApp Berry Protocol</div>
+                <div class="card-subtext">Automated customer login OTP delivery at checkout.</div>
+              </div>
+              <span class="badge badge-warning" id="waHeaderBadge">CHECKING...</span>
+            </div>
+
+            <div
+              style="background:#f8fafc; border:1px solid var(--border); border-radius:0.75rem; padding:1rem; margin-bottom:1rem;">
+              <div id="waLiveStatusDisplay">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+                  <span id="waDotIndicator" style="color:#d97706;">●</span>
+                  <strong id="waStateTitle" style="color:#0f172a;">Pairing Standby</strong>
+                </div>
+                <div id="waPhoneDisplay" style="font-size:0.85rem; color:#475569; font-family:monospace;">
+                  Phone Number: Not Linked
+                </div>
+              </div>
+            </div>
+
+            <div id="waQrBox"
+              style="background:#ffffff; border:1px solid var(--border); border-radius:0.75rem; padding:1rem; display:inline-block; margin:0 auto 1rem auto; text-align:center;">
+              <div id="waQrPlaceholder"
+                style="width:240px; height:240px; display:flex; align-items:center; justify-content:center; color:#0f172a; font-size:0.85rem; text-align:center; padding:1rem;">
+                Click "Connect / Refresh QR" to pair device
+              </div>
+              <img id="waQrImg" src="" alt="WhatsApp Pairing QR" style="width:240px; height:240px; display:none; image-rendering:pixelated;" onerror="this.style.display='none'; if(document.getElementById('waQrPlaceholder')){ document.getElementById('waQrPlaceholder').style.display='flex'; document.getElementById('waQrPlaceholder').innerText='QR preview unavailable. Click Refresh QR.'; }" />
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btnWaConnect" onclick="reconnectWhatsApp()">⚡ Connect / Refresh
+                QR</button>
+              <button class="btn btn-danger" id="btnWaDisconnect" onclick="disconnectWhatsApp()"
+                style="display:none;">🔌 Disconnect</button>
+              <button class="btn btn-secondary" onclick="fetchWhatsAppStatus(true)">🔄 Check Status</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 4: SECURITY & BAN MANAGEMENT (Sections 4, 5, 6, 7, 9)              -->
+    <!-- ========================================================================= -->
+    <div id="sectionSecurity" hidden>
+
+      <!-- SUB-VIEW 4.1: BANNED USERS -->
+      <div id="subViewSecBanned">
+        <div class="card">
+          <div class="card-header" style="flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div class="card-heading">🚫 Banned Customer Identities</div>
+              <div class="card-subtext">Server-enforced access blocking. Positive identification of fraudulent payment
+                injection or manual administrative bans.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+              <input type="text" id="bannedSearchInput" placeholder="Search by name, email, or phone..."
+                style="width:240px; font-size:0.82rem; padding:0.45rem 0.75rem;"
+                oninput="filterBannedUsers(this.value)" />
+              <button class="btn btn-secondary" onclick="fetchBannedUsers()">🔄 Refresh</button>
+              <button class="btn btn-danger" onclick="openManualBanModal()">➕ Ban User</button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Ban Status</th>
+                  <th>Ban Timestamp</th>
+                  <th>Ban Reason</th>
+                  <th>Payment Session</th>
+                  <th>Last Device</th>
+                  <th>Source</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bannedUsersTableBody">
+                <tr>
+                  <td colspan="10" style="text-align:center; color:var(--text-muted); padding:2rem;">
+                    Loading banned users...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 4.2: SECURITY EVENTS -->
+      <div id="subViewSecEvents" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🚨 Security &amp; Forensic Events Log</div>
+              <div class="card-subtext">Real-time immutable security event records preserved with exact raw evidence
+                verbatim.</div>
+            </div>
+            <button class="btn btn-secondary" onclick="fetchSecurityEvents()">🔄 Refresh</button>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Event Type</th>
+                  <th>Customer</th>
+                  <th>Source</th>
+                  <th>Sender</th>
+                  <th>Fraud Reason</th>
+                  <th>Raw Evidence (Verbatim)</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="securityEventsTableBody">
+                <tr>
+                  <td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">
+                    Loading security events...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 4.3: BAN HISTORY -->
+      <div id="subViewSecHistory" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">📜 Ban &amp; Unban History Audit Trail</div>
+              <div class="card-subtext">Historical chronological audit trail of all automatic bans, unbans, manual bans,
+                and re-bans.</div>
+            </div>
+            <button class="btn btn-secondary" onclick="fetchSecurityHistory()">🔄 Refresh</button>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Actor</th>
+                  <th>Customer Identity</th>
+                  <th>Details &amp; Transitions</th>
+                </tr>
+              </thead>
+              <tbody id="securityHistoryTableBody">
+                <tr>
+                  <td colspan="5" style="text-align:center; color:var(--text-muted); padding:2rem;">
+                    Loading ban history...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+  </div>
+
+  <!-- Gmail Setup Guide Modal (Exact 15-Step Instructions & Refresh Token Guide) -->
+  <div id="gmailGuideModal" class="modal-overlay" hidden>
+    <div class="modal-box" style="max-width:720px; max-height:85vh; overflow-y:auto; background:#ffffff; color:#0f172a;">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #e2e8f0; padding-bottom:0.75rem;">
+        <h3 style="color:#0f172a; margin:0; font-size:1.15rem;">📖 Official Gmail API &amp; Refresh Token Guide</h3>
+        <button class="btn btn-secondary" style="padding:0.25rem 0.5rem;" onclick="closeGmailGuideModal()">✕</button>
+      </div>
+      <div style="font-size:0.82rem; color:#334155; line-height:1.6;">
+
+        <div
+          style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:0.5rem; padding:0.75rem 1rem; margin-bottom:1rem;">
+          <strong style="color:#0369a1; display:block; font-size:0.9rem; margin-bottom:0.25rem;">⚡ How to get your
+            Google Refresh Token (Choose either method):</strong>
+          <span style="color:#475569; font-size:0.78rem;">Both methods work 100% reliably. Method 1 is automated
+            1-click; Method 2 uses Google's official OAuth Playground.</span>
+        </div>
+
+        <div
+          style="border:1px solid #e2e8f0; border-radius:0.5rem; padding:0.85rem; margin-bottom:1rem; background:#f8fafc;">
+          <h4 style="color:#059669; margin:0 0 0.5rem 0; font-size:0.95rem;">Method 1: Direct 1-Click Authorize
+            (Automatic)</h4>
+          <ol style="padding-left:1.25rem; display:flex; flex-direction:column; gap:0.35rem; margin:0;">
+            <li>In <strong>Google Cloud Console</strong> &gt; <em>Credentials</em>, add this exact redirect URI:
+              <code
+                style="color:#0284c7; display:block; margin:0.2rem 0; background:#ffffff; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px;"
+                id="guideProdUri">(loaded from your configured domain)</code>
+            </li>
+            <li>Under <em>OAuth consent screen</em> &gt; <em>Test users</em>, ensure your personal Gmail address is
+              added.</li>
+            <li>In YOUPI Admin Panel, enter your <strong>Client ID</strong> and <strong>Client Secret</strong>, then
+              click <strong>💾 Save Credentials</strong>.</li>
+            <li>Click the <strong>🔗 Authorize OAuth</strong> button. A Google sign-in window will open.</li>
+            <li>Log into your Gmail account, grant read-only permissions, and complete consent.</li>
+            <li>YOUPI will automatically capture and save the offline refresh token into your database!</li>
+          </ol>
+        </div>
+
+        <div
+          style="border:1px solid #e2e8f0; border-radius:0.5rem; padding:0.85rem; margin-bottom:1rem; background:#f8fafc;">
+          <h4 style="color:#0284c7; margin:0 0 0.5rem 0; font-size:0.95rem;">Method 2: Google OAuth 2.0 Playground
+            (Manual — 60 Seconds)</h4>
+          <ol style="padding-left:1.25rem; display:flex; flex-direction:column; gap:0.35rem; margin:0;">
+            <li>Open <a href="https://developers.google.com/oauthplayground" target="_blank"
+                style="color:#0284c7; text-decoration:underline;">Google OAuth 2.0 Playground
+                (developers.google.com/oauthplayground)</a> in a new tab.</li>
+            <li>Click the <strong>⚙️ Gear Icon (OAuth 2.0 configuration)</strong> at the top right of the page.</li>
+            <li>Check the box: <strong>"Use your own OAuth credentials"</strong>.</li>
+            <li>Paste your <strong>OAuth Client ID</strong> and <strong>OAuth Client Secret</strong> into the fields
+              that appear.</li>
+            <li>In the main left pane under <strong>Step 1: Select &amp; authorize APIs</strong>:
+              <div style="margin:0.25rem 0;">Scroll to <strong>Gmail API v1</strong> and check
+                <code>https://www.googleapis.com/auth/gmail.readonly</code> (or type it in the text box).
+              </div>
+            </li>
+            <li>Click the blue button: <strong>Authorize APIs</strong>. Sign in to your Google account and click
+              <strong>Allow</strong>.
+            </li>
+            <li>Under <strong>Step 2: Exchange authorization code for tokens</strong>:
+              <div style="margin:0.25rem 0;">Click the blue button: <strong>Exchange authorization code for
+                  tokens</strong>.</div>
+            </li>
+            <li>Look at the response pane on the right: copy the <strong>Refresh token</strong> (starts with
+              <code>1//...</code>).
+            </li>
+            <li>Paste the refresh token into the <strong>Google Refresh Token (Offline Access)</strong> box in YOUPI and
+              click <strong>💾 Save Credentials</strong>!</li>
+          </ol>
+        </div>
+
+        <div
+          style="background:#fef3c7; border:1px solid #f59e0b; border-radius:0.5rem; padding:0.75rem; font-size:0.75rem; color:#92400e;">
+          <strong>⚠️ Google Cloud Console Setup Note:</strong><br>
+          Make sure the <strong>Gmail API</strong> is enabled in <em>APIs &amp; Services &gt; Library</em> and the OAuth
+          consent screen publishing status is set to "Testing" with your Gmail added as a Test User.
+        </div>
+      </div>
+      <div style="margin-top:1.25rem; text-align:right;">
+        <button class="btn btn-primary" onclick="closeGmailGuideModal()">Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECURITY & BAN MODALS (Section 9)                                         -->
+  <!-- ========================================================================= -->
+
+  <!-- 1. Ban Details Modal (Section 9.2: Complete Evidence & Verbatim Raw Message) -->
+  <div id="banDetailsModal" class="modal-overlay" hidden>
+    <div class="modal-box"
+      style="max-width:850px; max-height:90vh; overflow-y:auto; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18);">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.5rem;">🚨</span>
+          <div>
+            <h3 style="color:#dc2626; margin:0; font-size:1.25rem; font-weight:800; letter-spacing:-0.02em;">Forensic Security &amp; Ban Evidence Dossier</h3>
+            <div style="color:#64748b; font-size:0.78rem;">Immutable tamper-proof record of fraudulent payment injection attempt</div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="padding:0.35rem 0.65rem;" onclick="closeBanDetailsModal()">✕</button>
+      </div>
+
+      <div id="banDetailsModalBody">
+        <div style="text-align:center; padding:2rem; color:#64748b;">Loading ban evidence...</div>
+      </div>
+
+      <div
+        style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1rem;">
+        <div style="font-size:0.75rem; color:#64748b;">Security Engine v2 &bull; YOUPI PG</div>
+        <div style="display:flex; gap:0.75rem;">
+          <button class="btn btn-secondary" onclick="closeBanDetailsModal()">Close</button>
+          <button id="btnModalUnbanTrigger" class="btn btn-success"
+            style="background:#059669; border-color:#059669; font-weight:700;" onclick="handleModalUnbanClick()">🔓
+            Unban Customer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Unban Confirmation Modal (Section 9.3) -->
+  <div id="unbanConfirmModal" class="modal-overlay" hidden>
+    <div class="modal-box"
+      style="max-width:540px; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18);">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+        <h3 style="color:#059669; margin:0; display:flex; align-items:center; gap:0.5rem; font-size:1.15rem; font-weight:800;">
+          <span>🔓</span> Restore Customer Access (Unban)
+        </h3>
+        <button class="btn btn-secondary" style="padding:0.25rem 0.5rem;" onclick="closeUnbanModal()">✕</button>
+      </div>
+
+      <p style="font-size:0.88rem; color:#334155; line-height:1.6; margin-bottom:1.25rem;">
+        Are you sure you want to unban customer <strong id="unbanCustName" style="color:#0f172a;"></strong> (<span
+          id="unbanCustPhone" style="color:#0284c7; font-family:monospace; font-weight:700;"></span>)?
+        <br><span style="color:#64748b; font-size:0.8rem; display:block; margin-top:0.4rem;">This will restore their
+          status to <strong style="color:#059669;">ACTIVE</strong> and immediately restore their ability to initiate
+          payments on the gateway.</span>
+      </p>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.4rem;">
+          Mandatory Reason for Unbanning <span style="color:#dc2626;">*</span>
+        </label>
+        <select id="unbanReasonSelect" class="form-control"
+          style="width:100%; margin-bottom:0.5rem; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; padding:0.55rem; font-size:0.85rem;"
+          onchange="handleUnbanReasonChange()">
+          <option value="Customer verified via phone call">Customer verified via phone call</option>
+          <option value="False positive investigated">False positive investigated</option>
+          <option value="Testing override">Testing override</option>
+          <option value="Dispute resolved with merchant">Dispute resolved with merchant</option>
+          <option value="OTHER">Other custom reason...</option>
+        </select>
+        <input type="text" id="unbanReasonCustom" placeholder="Specify mandatory custom unban reason..."
+          style="width:100%; display:none; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; padding:0.55rem; font-size:0.85rem;">
+      </div>
+
+      <div
+        style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+        <button class="btn btn-secondary" onclick="closeUnbanModal()">Cancel</button>
+        <button id="btnConfirmUnbanAction" class="btn btn-success"
+          style="background:#059669; border-color:#059669; font-weight:700;" onclick="executeUnbanCustomer()">Confirm
+          Unban</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Manual Ban Modal (Section 9.4) -->
+  <div id="manualBanModal" class="modal-overlay" hidden>
+    <div class="modal-box"
+      style="max-width:560px; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18);">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+        <h3 style="color:#dc2626; margin:0; display:flex; align-items:center; gap:0.5rem; font-size:1.15rem; font-weight:800;">
+          <span>🚫</span> Manually Ban Abusive Customer
+        </h3>
+        <button class="btn btn-secondary" style="padding:0.25rem 0.5rem;" onclick="closeManualBanModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.4rem;">
+          Select Customer <span style="color:#dc2626;">*</span>
+        </label>
+        <select id="manualBanCustomerSelect"
+          style="width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; padding:0.55rem; font-size:0.85rem;"
+          onchange="handleManualBanCustomerChange()">
+          <option value="">-- Choose Existing Customer --</option>
+        </select>
+      </div>
+
+      <div id="manualBanCustomInputs" style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.4rem;">
+          Or Enter Customer ID / Phone / Email
+        </label>
+        <input type="text" id="manualBanCustomerIdInput" placeholder="Customer UUID, mobile (+91...), or email"
+          style="width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; padding:0.55rem; font-size:0.85rem;">
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.4rem;">
+          Mandatory Reason <span style="color:#dc2626;">*</span>
+        </label>
+        <input type="text" id="manualBanReasonInput" value="MANUAL_BAN"
+          placeholder="e.g. Abusive behavior, chargeback dispute, manual fraud notice"
+          style="width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; padding:0.55rem; font-size:0.85rem;">
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:0.4rem;">
+          Optional Notes / Investigation Details
+        </label>
+        <textarea id="manualBanNotesInput" rows="3"
+          placeholder="Additional merchant operator notes, reference ticket, etc."
+          style="width:100%; background:#f8fafc; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; padding:0.55rem; font-size:0.85rem; resize:vertical;"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+        <button class="btn btn-secondary" onclick="closeManualBanModal()">Cancel</button>
+        <button class="btn btn-danger" style="background:#dc2626; border-color:#dc2626; font-weight:700;"
+          onclick="executeManualBan()">Confirm Ban</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Cashier Floating Dock -->
+  <div id="cashierFloatingDock" class="cashier-floating-dock"></div>
+
+  <!-- Live Checkout Preview Modal (Razorpay Modal Simulator) -->
+  <div id="checkoutPreviewModal" style="display:none; position:fixed; inset:0; z-index:2147483647; background:rgba(15,23,42,0.6); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; border-radius:16px; border:1px solid #cbd5e1; width:100%; max-width:440px; height:90vh; max-height:720px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.18);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.1rem;">📱</span>
+          <strong style="font-size:0.88rem; color:#0f172a;">Live Checkout Preview</strong>
+        </div>
+        <button type="button" onclick="closeCheckoutPreviewModal()" style="background:transparent; border:none; color:#64748b; font-size:1.3rem; cursor:pointer; line-height:1;">✕</button>
+      </div>
+      <iframe id="checkoutPreviewIframe" src="about:blank" style="flex:1; width:100%; border:none; background:#ffffff;"></iframe>
+    </div>
+  </div>
+
+  <script src="/js/core/auth.js?v=2.5.1"></script>
+  <script src="/js/core/nav.js?v=2.5.1"></script>
+  <script src="/js/modules/payment-links.js?v=2.5.1"></script>
+  <script src="/js/modules/operations.js?v=2.5.1"></script>
+  <script src="/js/modules/settings.js?v=2.5.1"></script>
+  <script src="/js/main.js?v=2.5.1"></script>
+</body>
+</html>

@@ -228,3 +228,37 @@ CREATE INDEX IF NOT EXISTS idx_devices_fingerprint ON devices (fingerprint_hash)
 CREATE INDEX IF NOT EXISTS idx_devices_token ON devices (device_token);
 CREATE INDEX IF NOT EXISTS idx_payment_sessions_device ON payment_sessions (device_id);
 
+-- 12. Users & Portal Accounts
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'MERCHANT',
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    merchant_id TEXT REFERENCES merchants(id) ON DELETE SET NULL,
+    last_login_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_merchant ON users (merchant_id);
+
+-- 12b. User Auth Sessions
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    merchant_id TEXT,
+    ip_address VARCHAR(100),
+    user_agent TEXT,
+    expires_at TIMESTAMPTZ NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions (token);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions (user_id);

@@ -8,7 +8,7 @@
     { "path": "./packages/merchant-sdk" },
     { "path": "./apps/payment-api" },
     { "path": "./apps/checkout-portal" },
-    { "path": "./apps/merchant-admin" },
+    { "path": "./apps/dashboard" },
     { "path": "./apps/payment-help" },
     { "path": "./apps/gmail-observer" },
     { "path": "./apps/sms-observer" },

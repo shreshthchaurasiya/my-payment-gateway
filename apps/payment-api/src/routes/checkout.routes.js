@@ -1480,6 +1480,68 @@ export function registerCheckoutRoutes(server, ctx) {
     });
   });
 
+  // POST /api/v1/checkout/:id/simulate-test-success
+  // Instant test simulation for developers integrating YouPI PG (Razorpay Test Mode standard)
+  server.post('/api/v1/checkout/:id/simulate-test-success', async (req, res, params) => {
+    const session = ctx.sessionRepo.findById(params.id);
+    if (!session) {
+      HttpServer.json(res, 404, { error: 'Session not found' });
+      return;
+    }
+
+    const utr = `TEST${Date.now().toString().slice(-8)}`;
+    ctx.sessionRepo.update(session.id, {
+      status: PaymentStatus.SUCCESS,
+      completedAt: new Date(),
+      metadata: {
+        ...(session.metadata || {}),
+        simulatedTest: true,
+        utr
+      }
+    });
+
+    // Deliver signed webhook to merchant destination URL if configured
+    try {
+      const merchant = ctx.merchantRepo.findById(session.merchantId);
+      if (merchant && merchant.webhookUrl) {
+        const payload = {
+          event: 'SUCCESS',
+          paymentId: session.id,
+          orderId: session.orderId,
+          amount: toRupeesString(session.amountPaise),
+          amountPaise: session.amountPaise,
+          currency: session.currency || 'INR',
+          method: session.method || 'UPI',
+          utr,
+          mode: 'TEST',
+          completedAt: new Date().toISOString(),
+          metadata: session.metadata || {}
+        };
+        const rawBody = JSON.stringify(payload);
+        const secret = merchant.branding?.testWebhookSecret || merchant.webhookSecret || 'default_secret';
+        const signature = `sha256=${crypto.createHmac('sha256', secret).update(rawBody).digest('hex')}`;
+        fetch(merchant.webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Gateway-Event': 'SUCCESS',
+            'X-Gateway-Signature': signature,
+            'X-Gateway-Delivery-Id': crypto.randomUUID(),
+            'X-Gateway-Timestamp': Date.now().toString()
+          },
+          body: rawBody
+        }).catch(() => {});
+      }
+    } catch {}
+
+    HttpServer.json(res, 200, {
+      success: true,
+      status: 'SUCCESS',
+      utr,
+      orderId: session.orderId
+    });
+  });
+
   // POST /api/v1/checkout/:id/end-and-restart-payment (or end-session-and-create-new)
   // Cancels previous session created on another device and creates a fresh payment session bound to current device
   async function handleEndAndRestartPayment(req, res, params) {

@@ -111,6 +111,11 @@ export class CheckoutServer {
     const sidebarNotice = state?.branding?.sidebarNotice || 'Fast & Secure 256-Bit Encrypted Payments';
     const counterInstructions = state?.branding?.counterInstructions || 'Please visit the billing counter and present this screen to the cashier.';
     const vpa = state?.payeeVpa || state?.vpa || 'merchant@upi';
+    const amountVal = state?.amount || '0.00';
+    const upiUri = state?.upiUri || `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(merchantName)}&am=${encodeURIComponent(amountVal)}&cu=INR&tn=${encodeURIComponent(paymentId)}`;
+    if (state && !state.upiUri) {
+      state.upiUri = upiUri;
+    }
 
     // In production and localhost, use relative '' so browser requests hit the checkout portal /api proxy
     // This avoids cross-origin blocking, CORS errors, and tunnel DNS resolution issues.
@@ -149,8 +154,9 @@ export class CheckoutServer {
     html = html.replaceAll('{{PRIMARY_COLOR}}', escapeHtml(primaryColor));
     html = html.replaceAll('{{MERCHANT_NAME}}', escapeHtml(merchantName));
     html = html.replaceAll('{{ORDER_ID}}', escapeHtml(orderId));
-    html = html.replaceAll('{{AMOUNT}}', escapeHtml(state?.amount || '0.00'));
+    html = html.replaceAll('{{AMOUNT}}', escapeHtml(amountVal));
     html = html.replaceAll('{{VPA}}', escapeHtml(vpa));
+    html = html.replaceAll('{{UPI_URI}}', escapeHtml(upiUri));
     html = html.replaceAll('{{LOGO_URL}}', escapeHtml(logoUrl));
     html = html.replaceAll('{{SIDEBAR_NOTICE}}', escapeHtml(sidebarNotice));
     html = html.replaceAll('{{COUNTER_INSTRUCTIONS}}', escapeHtml(counterInstructions));
@@ -295,6 +301,13 @@ res.writeHead(200, {
             ...BASE_SECURITY_HEADERS
           });
         res.end(rendered);
+        return;
+      }
+
+      if (pathname === '/') {
+        const hostOnly = (req.headers.host || 'localhost').split(':')[0];
+        res.writeHead(302, { 'Location': `http://${hostOnly}:5000` });
+        res.end();
         return;
       }
 

@@ -39,7 +39,7 @@ export class ProcessManager extends EventEmitter {
       {
         id: 'merchant-admin',
         name: 'Merchant Admin Dashboard',
-        script: path.join(rootDir, 'apps/merchant-admin/src/index.js'),
+        script: path.join(rootDir, 'apps/dashboard/src/index.js'),
         port: Number(process.env.MERCHANT_ADMIN_PORT || 6001),
         healthPath: '/health',
         child: null,

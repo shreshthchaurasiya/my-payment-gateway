@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { HttpServer } from '../server.js';
-import { PaymentStatus, PaymentMethod, SellingMode, AuditActorType, isValidVpa, toRupeesString, deriveCloudflareRoutes, resolveRuntimeUrls, resolveGmailRedirectUri, createOAuthState, validateOutboundWebhookUrl } from '@youpi/common';
+import { PaymentStatus, PaymentMethod, SellingMode, AuditActorType, isValidVpa, toRupeesString, deriveCloudflareRoutes, resolveRuntimeUrls, resolveGmailRedirectUri, createOAuthState, validateOutboundWebhookUrl, generateHmac } from '@youpi/common';
 import { PaymentVerificationPipeline } from '@youpi/core';
 import { globalTunnelManager } from '../services/tunnel-manager.js';
 import { formatQrDataUrl } from '../services/whatsapp-berry.service.js';
@@ -95,7 +95,10 @@ function resolveSellingModeAndMethods(body, currentBranding = {}) {
  */
 export function registerAdminRoutes(server, ctx) {
   const resolveMerchant = (req, explicitId = null) => {
-    const targetId = explicitId || (req ? (req.query?.merchantId || req.headers?.['x-merchant-id']) : null);
+    let targetId = explicitId;
+    if (!targetId && req) {
+      targetId = req.user?.merchantId || req.session?.merchantId || req.headers?.['x-merchant-id'] || req.query?.merchantId;
+    }
     if (targetId) {
       const found = ctx.merchantRepo.findById(targetId);
       if (found) return found;
@@ -107,7 +110,8 @@ export function registerAdminRoutes(server, ctx) {
 
   // GET /api/v1/admin/queue
   server.get('/api/v1/admin/queue', async (req, res) => {
-    const merchantId = req.query.merchantId || req.headers?.['x-merchant-id'] || '00000000-0000-0000-0000-000000000001';
+    const merchant = resolveMerchant(req);
+    const merchantId = merchant ? merchant.id : (req.query.merchantId || req.headers?.['x-merchant-id'] || '00000000-0000-0000-0000-000000000001');
     let account = ctx.accountRepo.findActiveForMerchant(merchantId);
 
     if (!account) {
@@ -219,7 +223,8 @@ export function registerAdminRoutes(server, ctx) {
 
   // GET /api/v1/admin/payments
   server.get('/api/v1/admin/payments', async (req, res) => {
-    const merchantId = req.query.merchantId || '00000000-0000-0000-0000-000000000001';
+    const merchant = resolveMerchant(req);
+    const merchantId = merchant ? merchant.id : (req.query.merchantId || req.headers?.['x-merchant-id'] || '00000000-0000-0000-0000-000000000001');
     const limit = parseInt(req.query.limit || '50', 10);
     const payments = ctx.sessionRepo.findByMerchantId(merchantId, limit);
 
@@ -242,7 +247,8 @@ export function registerAdminRoutes(server, ctx) {
 
   // GET /api/v1/admin/tickets
   server.get('/api/v1/admin/tickets', async (req, res) => {
-    const merchantId = req.query.merchantId || '00000000-0000-0000-0000-000000000001';
+    const merchant = resolveMerchant(req);
+    const merchantId = merchant ? merchant.id : (req.query.merchantId || req.headers?.['x-merchant-id'] || '00000000-0000-0000-0000-000000000001');
     if (!ctx.ticketRepo) {
       HttpServer.json(res, 200, { tickets: [] });
       return;
@@ -1059,6 +1065,307 @@ export function registerAdminRoutes(server, ctx) {
       cloudflareTunnelCommand: updated.branding?.cloudflareTunnelCommand || '',
       tunnelStatus: globalTunnelManager.getStatus(),
       branding: updated.branding
+    });
+  });
+
+  // POST /api/v1/admin/webhooks/test (Interactive Webhook Simulator & Delivery Tester)
+  server.post('/api/v1/admin/webhooks/test', async (req, res) => {
+    const body = (await HttpServer.parseBody(req)) || {};
+    const merchant = resolveMerchant(req, body.merchantId);
+    if (!merchant) {
+      HttpServer.json(res, 404, { error: 'Merchant not found.' });
+      return;
+    }
+
+    const rawTargetUrl = (body.targetUrl || merchant.webhookUrl || '').trim();
+    if (!rawTargetUrl) {
+      HttpServer.json(res, 400, { error: 'Target Webhook URL is required.' });
+      return;
+    }
+
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(rawTargetUrl);
+    } catch {
+      HttpServer.json(res, 400, { error: 'Invalid Webhook URL. Please enter a valid HTTP or HTTPS URL.' });
+      return;
+    }
+
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      HttpServer.json(res, 400, { error: 'Webhook URL protocol must be http:// or https://' });
+      return;
+    }
+
+    const event = (body.event || 'SUCCESS').toUpperCase();
+    const orderId = (body.orderId || `TEST-ORD-${Date.now().toString().slice(-6)}`).trim();
+    const amountVal = parseFloat(body.amount) || 499.00;
+    const amountPaise = Math.round(amountVal * 100);
+    const utr = (body.utr || `${Math.floor(100000000000 + Math.random() * 900000000000)}`).trim();
+    const method = event === 'COD' ? 'COD' : (body.method || 'UPI');
+    const secret = merchant.webhookSecret || 'whsec_demo_secret';
+
+    const testPaymentId = `pay_test_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
+    const completedAt = new Date().toISOString();
+
+    const payloadObj = {
+      event,
+      paymentId: testPaymentId,
+      orderId,
+      amount: toRupeesString(amountPaise),
+      amountPaise,
+      currency: 'INR',
+      method,
+      utr,
+      completedAt,
+      metadata: body.metadata || { source: 'DeveloperStudio', simulated: true }
+    };
+
+    const payloadString = JSON.stringify(payloadObj);
+    const signature = generateHmac(payloadString, secret);
+    const deliveryId = crypto.randomUUID();
+    const timestamp = Date.now().toString();
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Gateway-Event': event,
+      'X-Gateway-Signature': `sha256=${signature}`,
+      'X-Gateway-Delivery-Id': deliveryId,
+      'X-Gateway-Timestamp': timestamp,
+      'User-Agent': 'YouPI-Webhook-Simulator/2.0'
+    };
+
+    const startTime = Date.now();
+    let responseStatus = null;
+    let responseStatusText = '';
+    let responseBody = '';
+    let responseHeaders = {};
+    let isDelivered = false;
+
+    try {
+      const response = await fetch(parsedUrl.toString(), {
+        method: 'POST',
+        headers,
+        body: payloadString,
+        redirect: 'manual',
+        signal: AbortSignal.timeout(8000)
+      });
+
+      const latencyMs = Date.now() - startTime;
+      responseStatus = response.status;
+      responseStatusText = response.statusText || `${response.status}`;
+      isDelivered = response.ok;
+
+      try {
+        response.headers.forEach((val, key) => {
+          responseHeaders[key] = val;
+        });
+      } catch (_) {}
+
+      try {
+        const text = await response.text();
+        responseBody = text.slice(0, 2048);
+      } catch (err) {
+        responseBody = `[Could not read body: ${err.message}]`;
+      }
+
+      HttpServer.json(res, 200, {
+        success: true,
+        delivered: isDelivered,
+        statusCode: responseStatus,
+        statusText: responseStatusText,
+        latencyMs,
+        responseHeaders,
+        responseBody,
+        request: {
+          url: parsedUrl.toString(),
+          headers,
+          payload: payloadObj
+        }
+      });
+    } catch (err) {
+      const latencyMs = Date.now() - startTime;
+      const errorMessage = err.name === 'TimeoutError' || err.message?.includes('timeout')
+        ? 'Request timed out after 8,000ms'
+        : (err.message || 'Network connection failed');
+
+      HttpServer.json(res, 200, {
+        success: false,
+        delivered: false,
+        statusCode: 0,
+        statusText: 'Connection Error',
+        latencyMs,
+        error: errorMessage,
+        responseHeaders: {},
+        responseBody: `Error: ${errorMessage}`,
+        request: {
+          url: parsedUrl.toString(),
+          headers,
+          payload: payloadObj
+        }
+      });
+    }
+  });
+
+  // POST /api/v1/admin/webhooks/regenerate-secret
+  server.post('/api/v1/admin/webhooks/regenerate-secret', async (req, res) => {
+    const body = (await HttpServer.parseBody(req)) || {};
+    const merchant = resolveMerchant(req, body.merchantId);
+    if (!merchant) {
+      HttpServer.json(res, 404, { error: 'Merchant not found.' });
+      return;
+    }
+    const newSecret = `whsec_${crypto.randomBytes(24).toString('hex')}`;
+    ctx.merchantRepo.update(merchant.id, { webhookSecret: newSecret });
+
+    if (ctx.auditRepo) {
+      ctx.auditRepo.log({
+        merchantId: merchant.id,
+        entityType: 'MERCHANT',
+        entityId: merchant.id,
+        action: 'WEBHOOK_SECRET_REGENERATED',
+        actorType: AuditActorType.ADMIN,
+        details: { regeneratedAt: new Date().toISOString() }
+      });
+    }
+
+    HttpServer.json(res, 200, { success: true, webhookSecret: newSecret });
+  });
+
+  // POST /api/v1/admin/api-keys/generate (Razorpay / Cashfree API Key Generator)
+  server.post('/api/v1/admin/api-keys/generate', async (req, res) => {
+    const body = (await HttpServer.parseBody(req)) || {};
+    const merchant = resolveMerchant(req, body.merchantId);
+    if (!merchant) {
+      HttpServer.json(res, 404, { error: 'Merchant not found.' });
+      return;
+    }
+
+    const mode = (body.mode || 'live').toLowerCase(); // 'test' | 'live'
+    const branding = merchant.branding || {};
+    const cleanSlug = (merchant.slug || 'live').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+    const createdAt = new Date().toISOString();
+
+    let keyId, keySecret, webhookSecret;
+
+    if (mode === 'test') {
+      keyId = `yp_test_${cleanSlug}_${crypto.randomBytes(6).toString('hex')}`;
+      keySecret = `yp_test_sec_${crypto.randomBytes(24).toString('hex')}`;
+      webhookSecret = `whsec_test_${crypto.randomBytes(20).toString('hex')}`;
+      
+      branding.testApiKey = keyId;
+      branding.testApiSecret = keySecret;
+      branding.testApiKeyCreatedAt = createdAt;
+      branding.testWebhookSecret = webhookSecret;
+
+      ctx.merchantRepo.update(merchant.id, { branding });
+    } else {
+      keyId = `yp_live_${cleanSlug}_${crypto.randomBytes(6).toString('hex')}`;
+      keySecret = `yp_sec_${crypto.randomBytes(24).toString('hex')}`;
+      webhookSecret = `whsec_${crypto.randomBytes(20).toString('hex')}`;
+
+      branding.apiKey = keyId;
+      branding.apiSecret = keySecret;
+      branding.apiKeyCreatedAt = createdAt;
+
+      ctx.merchantRepo.update(merchant.id, {
+        webhookSecret,
+        branding
+      });
+    }
+
+    if (ctx.auditRepo) {
+      ctx.auditRepo.log({
+        merchantId: merchant.id,
+        entityType: 'MERCHANT',
+        entityId: merchant.id,
+        action: 'API_KEY_GENERATED',
+        actorType: AuditActorType.ADMIN,
+        details: { mode, keyId, createdAt }
+      });
+    }
+
+    HttpServer.json(res, 200, {
+      success: true,
+      mode,
+      keyId,
+      keySecret,
+      webhookSecret,
+      createdAt,
+      status: 'ACTIVE'
+    });
+  });
+
+  // GET /api/v1/admin/api-keys
+  server.get('/api/v1/admin/api-keys', async (req, res) => {
+    const merchant = resolveMerchant(req, req.query?.merchantId);
+    if (!merchant) {
+      HttpServer.json(res, 404, { error: 'Merchant not found.' });
+      return;
+    }
+
+    const branding = merchant.branding || {};
+    const cleanSlug = (merchant.slug || 'live').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+    let changed = false;
+
+    // Live Mode Credentials
+    let liveKeyId = branding.apiKey;
+    let liveKeySecret = branding.apiSecret;
+    let liveCreatedAt = branding.apiKeyCreatedAt || merchant.createdAt;
+    let liveWebhookSecret = merchant.webhookSecret || '';
+    if (!liveKeyId) {
+      liveKeyId = `yp_live_${cleanSlug}_${crypto.randomBytes(6).toString('hex')}`;
+      liveKeySecret = `yp_sec_${crypto.randomBytes(24).toString('hex')}`;
+      liveCreatedAt = new Date().toISOString();
+      branding.apiKey = liveKeyId;
+      branding.apiSecret = liveKeySecret;
+      branding.apiKeyCreatedAt = liveCreatedAt;
+      changed = true;
+    }
+
+    // Test Mode Credentials (Razorpay / Cashfree Test Environment)
+    let testKeyId = branding.testApiKey;
+    let testKeySecret = branding.testApiSecret;
+    let testCreatedAt = branding.testApiKeyCreatedAt || merchant.createdAt;
+    let testWebhookSecret = branding.testWebhookSecret || `whsec_test_${crypto.randomBytes(20).toString('hex')}`;
+    if (!testKeyId) {
+      testKeyId = `yp_test_${cleanSlug}_${crypto.randomBytes(6).toString('hex')}`;
+      testKeySecret = `yp_test_sec_${crypto.randomBytes(24).toString('hex')}`;
+      testCreatedAt = new Date().toISOString();
+      branding.testApiKey = testKeyId;
+      branding.testApiSecret = testKeySecret;
+      branding.testApiKeyCreatedAt = testCreatedAt;
+      branding.testWebhookSecret = testWebhookSecret;
+      changed = true;
+    }
+
+    if (changed) {
+      ctx.merchantRepo.update(merchant.id, { branding });
+    }
+
+    HttpServer.json(res, 200, {
+      success: true,
+      // Backward-compatible default fields (live)
+      keyId: liveKeyId,
+      keySecret: liveKeySecret,
+      webhookSecret: liveWebhookSecret,
+      webhookUrl: merchant.webhookUrl || '',
+      createdAt: liveCreatedAt,
+      status: 'ACTIVE',
+      // Dual environment test & live objects
+      test: {
+        keyId: testKeyId,
+        keySecret: testKeySecret,
+        webhookSecret: testWebhookSecret,
+        createdAt: testCreatedAt,
+        status: 'ACTIVE'
+      },
+      live: {
+        keyId: liveKeyId,
+        keySecret: liveKeySecret,
+        webhookSecret: liveWebhookSecret,
+        createdAt: liveCreatedAt,
+        status: 'ACTIVE'
+      }
     });
   });
 

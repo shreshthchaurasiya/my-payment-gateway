@@ -5,6 +5,7 @@ import { startCloudflaredSafely } from '../packages/common/src/tunnel-command.js
 
 if (!process.env.YOUPI_MODE) process.env.YOUPI_MODE = 'localhost';
 if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
+if (!process.env.YOUPI_ALLOW_PRIVATE_WEBHOOKS) process.env.YOUPI_ALLOW_PRIVATE_WEBHOOKS = 'true';
 
 console.log('====================================================');
 console.log('🚀 Starting YOUPI PG (Development / Localhost Mode)');

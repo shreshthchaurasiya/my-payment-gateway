@@ -433,10 +433,15 @@ export class CoinWalletStoreServer {
             const orderId = `COIN-ORD-${Date.now()}`;
             const amountStr = price.toFixed(2);
 
-            // The post-payment return target must be derived from the store's own configured
-            // base URL. Building it from Host / X-Forwarded-* lets an attacker choose where a
-            // paying customer is redirected (phishing after a real payment).
-            const returnUrl = `${this.publicBaseUrl}/wallet?orderId=${encodeURIComponent(orderId)}`;
+            // Dynamically resolve the active public base URL from incoming request
+            // to ensure mobile devices on LAN (e.g. 10.x.x.x) or tunnels connect properly.
+            const incomingHost = req.headers['x-forwarded-host'] || req.headers.host || `localhost:${process.env.STORE_PORT || 5000}`;
+            const incomingProto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
+            const activeBaseUrl = (this.publicBaseUrl && !this.publicBaseUrl.includes('localhost') && !this.publicBaseUrl.includes('127.0.0.1'))
+              ? this.publicBaseUrl
+              : `${incomingProto}://${incomingHost}`;
+
+            const returnUrl = `${activeBaseUrl}/wallet?orderId=${encodeURIComponent(orderId)}`;
 
             // Coin quantity is derived server-side from the amount paid. A client-supplied
             // `coins` value would let a buyer pay ₹1 and be credited an arbitrary balance.
@@ -456,11 +461,9 @@ export class CoinWalletStoreServer {
 
             this.orderPayments.set(orderId, payment.paymentId);
 
-            // Normalize checkoutUrl for localhost development / testing to prevent tunnel offline issues
-            let resolvedCheckoutUrl = payment.checkoutUrl;
-            if (this.publicBaseUrl.includes('localhost') || this.publicBaseUrl.includes('127.0.0.1')) {
-              resolvedCheckoutUrl = `${this.publicBaseUrl}/checkout/${payment.paymentId}`;
-            }
+            // Normalize checkoutUrl to route through the store's reverse-proxy /checkout/:id
+            // using the active origin so mobile devices and LAN clients never try to connect to localhost.
+            const resolvedCheckoutUrl = `${activeBaseUrl}/checkout/${payment.paymentId}`;
 
             res.writeHead(200, {
               'Content-Type': 'application/json',

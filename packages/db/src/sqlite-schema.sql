@@ -231,4 +231,37 @@ CREATE INDEX IF NOT EXISTS idx_devices_fingerprint ON devices (fingerprint_hash)
 CREATE INDEX IF NOT EXISTS idx_devices_token ON devices (device_token);
 CREATE INDEX IF NOT EXISTS idx_payment_sessions_device ON payment_sessions (device_id);
 
+-- 12. Users & Portal Accounts (Super Admins and Merchant Clients)
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'MERCHANT', -- 'SUPER_ADMIN' | 'MERCHANT'
+    status TEXT NOT NULL DEFAULT 'ACTIVE', -- 'ACTIVE' | 'SUSPENDED'
+    merchant_id TEXT REFERENCES merchants(id) ON DELETE SET NULL,
+    last_login_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_merchant ON users (merchant_id);
+
+-- 12b. User Auth Sessions (Sovereign HTTP Cookies & API Bearer Sessions)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token TEXT UNIQUE NOT NULL,
+    role TEXT NOT NULL,
+    merchant_id TEXT,
+    ip_address TEXT,
+    user_agent TEXT,
+    expires_at TEXT NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions (token);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions (user_id);

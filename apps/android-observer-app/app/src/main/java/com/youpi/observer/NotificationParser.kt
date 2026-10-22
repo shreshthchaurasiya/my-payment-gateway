@@ -62,7 +62,7 @@ object NotificationParser {
         val combined = "$safeTitle $safeText"
 
         // Check for credit keywords
-        val creditMatch = Regex("""(credited|received|deposit|payment received|upi/cr)""", RegexOption.IGNORE_CASE)
+        val creditMatch = Regex("""(credited|received|deposit|payment received|upi/cr|fampaid|sent)""", RegexOption.IGNORE_CASE)
         if (!creditMatch.containsMatchIn(combined)) {
             return null // Skip debits or irrelevant alerts
         }

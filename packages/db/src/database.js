@@ -1,8 +1,27 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { DatabaseSync } from 'node:sqlite';
 import { runMigrations } from './migrate.js';
+
+const require = createRequire(import.meta.url);
+
+let DatabaseSyncClass = null;
+try {
+  const sqlite = require('node:sqlite');
+  if (sqlite && sqlite.DatabaseSync) {
+    DatabaseSyncClass = sqlite.DatabaseSync;
+  }
+} catch {}
+
+if (!DatabaseSyncClass) {
+  try {
+    DatabaseSyncClass = require('better-sqlite3');
+  } catch (err) {
+    throw new Error('Neither native node:sqlite nor better-sqlite3 is available: ' + err.message);
+  }
+}
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,7 +53,7 @@ export class Database {
    */
   constructor(options = {}) {
     if (options.inMemory) {
-      this.db = new DatabaseSync(':memory:');
+      this.db = new DatabaseSyncClass(':memory:');
     } else {
       let dbPath;
       if (options.dbPath) {
@@ -52,7 +71,7 @@ export class Database {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      this.db = new DatabaseSync(dbPath);
+      this.db = new DatabaseSyncClass(dbPath);
     }
 
     // Enable foreign keys, busy timeout, and WAL mode for maximum concurrency and integrity

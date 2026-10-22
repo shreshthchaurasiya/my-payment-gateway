@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In & Register — YOUPI PG Sovereign Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.15);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+        radial-gradient(at 50% 30%, rgba(241, 245, 249, 0.8) 0px, transparent 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      color: var(--text);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #1e40af;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .brand-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2563eb;
+      box-shadow: 0 0 6px rgba(37, 99, 235, 0.5);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2563eb, #10b981);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+
+    .header-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      color: #0f172a;
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit.loading {
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .btn-submit.loading .spinner {
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .alert {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .alert.danger {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .alert.success {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
+      font-weight: 600;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .footer-note strong {
+      color: #334155;
+    }
+
+    .code-badge {
+      font-family: 'JetBrains Mono', monospace;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: #2563eb;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand-badge">Sovereign Payment Infrastructure</div>
+
+  <div class="auth-card">
+    <div class="header">
+      <div class="logo-container">
+        <div class="logo-icon">Y</div>
+        <div class="logo-text">YOUPI PG</div>
+      </div>
+      <p class="header-desc" id="header-desc">Sign in to your sovereign payment console</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <div class="alert danger" id="alert-error"></div>
+    <div class="alert success" id="alert-success"></div>
+
+    <!-- 1. LOGIN FORM -->
+    <form id="form-login" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="login-email">Email Address</label>
+        <input class="form-input" type="email" id="login-email" placeholder="admin@adshree.com" required autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input class="form-input" type="password" id="login-password" placeholder="••••••••••••" required autocomplete="current-password" />
+      </div>
+
+      <button type="submit" class="btn-submit" id="btn-login">
+        <span class="spinner"></span>
+        <span class="btn-text">Sign In to Gateway</span>
+      </button>
+
+      <div class="footer-note">
+        Super Admin or Merchant account credentials.<br>
+        Passwords are encrypted with <span class="code-badge">PBKDF2/SHA-512</span> salt.
+      </div>
+    </form>
+
+    <!-- 2. SIGNUP FORM -->
+    <form id="form-signup" style="display: none;" onsubmit="handleSignup(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="signup-name">Your Full Name</label>
+          <input class="form-input" type="text" id="signup-name" placeholder="John Doe" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-phone">Phone Number</label>
+          <input class="form-input" type="tel" id="signup-phone" placeholder="9876543210" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signup-business">Business / Store Name</label>
+        <input class="form-input" type="text" id="signup-business" placeholder="Acme E-Commerce Store" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signup-email">Business Email</label>
+        <input class="form-input" type="email" id="signup-email" placeholder="merchant@yourstore.com" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signup-password">Create Password</label>
+        <input class="form-input" type="password" id="signup-password" placeholder="Minimum 6 characters" minlength="6" required />
+      </div>
+
+      <button type="submit" class="btn-submit" id="btn-signup">
+        <span class="spinner"></span>
+        <span class="btn-text">Create Sovereign Account</span>
+      </button>
+
+      <div class="footer-note">
+        Instant merchant setup with automatic UPI VPA slot.<br>
+        Zero gateway fees. 100% self-hosted & sovereign.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function switchTab(mode) {
+      const loginForm = document.getElementById('form-login');
+      const signupForm = document.getElementById('form-signup');
+      const tabLogin = document.getElementById('tab-login');
+      const tabSignup = document.getElementById('tab-signup');
+      const headerDesc = document.getElementById('header-desc');
+      clearAlerts();
+
+      if (mode === 'signup') {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        tabLogin.classList.remove('active');
+        tabSignup.classList.add('active');
+        headerDesc.textContent = 'Create your sovereign merchant account in seconds';
+      } else {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+        headerDesc.textContent = 'Sign in to your sovereign payment console';
+      }
+    }
+
+    function clearAlerts() {
+      const errEl = document.getElementById('alert-error');
+      const succEl = document.getElementById('alert-success');
+      errEl.style.display = 'none';
+      succEl.style.display = 'none';
+    }
+
+    function showError(msg) {
+      const errEl = document.getElementById('alert-error');
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+
+    function showSuccess(msg) {
+      const succEl = document.getElementById('alert-success');
+      succEl.textContent = msg;
+      succEl.style.display = 'block';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      clearAlerts();
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login');
+
+      btn.classList.add('loading');
+
+      try {
+        const res = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Invalid credentials');
+        }
+
+        showSuccess('Authentication verified! Redirecting to control center...');
+        
+        // Store session token in localStorage for backup
+        if (data.token) {
+          localStorage.setItem('youpi_auth_token', data.token);
+          localStorage.setItem('youpi_user', JSON.stringify(data.user));
+        }
+
+        setTimeout(() => {
+          window.location.href = data.redirectUrl || '/dashboard';
+        }, 600);
+      } catch (err) {
+        showError(err.message || 'Login failed');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      clearAlerts();
+
+      const name = document.getElementById('signup-name').value.trim();
+      const phone = document.getElementById('signup-phone').value.trim();
+      const businessName = document.getElementById('signup-business').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const btn = document.getElementById('btn-signup');
+
+      btn.classList.add('loading');
+
+      try {
+        const res = await fetch('/api/v1/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, businessName, email, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to create account');
+        }
+
+        showSuccess('Account created successfully! Preparing merchant portal...');
+        if (data.token) {
+          localStorage.setItem('youpi_auth_token', data.token);
+          localStorage.setItem('youpi_user', JSON.stringify(data.user));
+        }
+
+        setTimeout(() => {
+          window.location.href = data.redirectUrl || '/dashboard';
+        }, 700);
+      } catch (err) {
+        showError(err.message || 'Registration failed');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    // Auto-check if query string contains tab=signup
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'signup' || window.location.pathname === '/signup') {
+      switchTab('signup');
+    }
+  </script>
+</body>
+</html>

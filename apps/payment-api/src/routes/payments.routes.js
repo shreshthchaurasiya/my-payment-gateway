@@ -32,10 +32,21 @@ export function registerPaymentRoutes(server, ctx) {
     const idempotencyKey = req.headers['idempotency-key'] || body.idempotencyKey;
 
     // Resolve merchant (default to first/demo merchant if none passed in header)
-    const merchantId = req.headers['x-merchant-id'] || body.merchantId;
+    const merchantKey = req.headers['x-merchant-id'] || req.headers['x-api-key'] || body.merchantId || body.apiKey;
     let merchant;
-    if (merchantId) {
-      merchant = ctx.merchantRepo.findById(merchantId);
+    let isTestMode = Boolean(body.isTest);
+    if (merchantKey) {
+      if (typeof merchantKey === 'string' && merchantKey.startsWith('yp_test_')) {
+        isTestMode = true;
+      }
+      merchant = ctx.merchantRepo.findById(merchantKey);
+      if (!merchant) {
+        merchant = ctx.merchantRepo.findAll().find(m => 
+          m.branding?.apiKey === merchantKey || 
+          m.branding?.testApiKey === merchantKey || 
+          m.slug === merchantKey
+        );
+      }
     } else {
       merchant = ctx.merchantRepo.getDefault ? ctx.merchantRepo.getDefault() : (ctx.merchantRepo.findById('00000000-0000-0000-0000-000000000001') || ctx.merchantRepo.findAll()[0]);
     }
@@ -214,7 +225,9 @@ export function registerPaymentRoutes(server, ctx) {
 
     const sessionMetadata = {
       ...(body.metadata || {}),
-      ...(receivingAccountSnapshot ? { receivingAccountSnapshot } : {})
+      ...(receivingAccountSnapshot ? { receivingAccountSnapshot } : {}),
+      isTest: isTestMode,
+      mode: isTestMode ? 'TEST' : 'LIVE'
     };
 
     if (deviceId && customerId && ctx.deviceRepo) {

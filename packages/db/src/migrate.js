@@ -7,6 +7,7 @@ import { getDatabase } from './database.js';
 import { MerchantRepository } from './repositories/merchant.repository.js';
 import { ReceivingAccountRepository } from './repositories/receiving-account.repository.js';
 import { CustomerRepository } from './repositories/customer.repository.js';
+import { UserRepository } from './repositories/user.repository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -167,9 +168,78 @@ export function runMigrations(targetDb) {
     });
   }
 
+  // Ensure users and user_sessions tables exist
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'MERCHANT',
+        status TEXT NOT NULL DEFAULT 'ACTIVE',
+        merchant_id TEXT REFERENCES merchants(id) ON DELETE SET NULL,
+        last_login_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users (email);
+      CREATE INDEX IF NOT EXISTS idx_users_merchant ON users (merchant_id);
+
+      CREATE TABLE IF NOT EXISTS user_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT UNIQUE NOT NULL,
+        role TEXT NOT NULL,
+        merchant_id TEXT,
+        ip_address TEXT,
+        user_agent TEXT,
+        expires_at TEXT NOT NULL,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions (token);
+      CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions (user_id);
+    `);
+  } catch {}
+
+  // Seed default Super Admin if none exists
+  const userRepo = new UserRepository(db);
+  const superAdmins = userRepo.findAll({ role: 'SUPER_ADMIN' });
+  let defaultAdmin;
+  if (superAdmins.length === 0) {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@adshree.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'AdminSecurePassword123!';
+    const adminName = process.env.ADMIN_NAME || 'AdShree Super Admin';
+
+    // Check if user with that email already exists
+    const existingAdminUser = userRepo.findByEmail(adminEmail);
+    if (!existingAdminUser) {
+      defaultAdmin = userRepo.create({
+        id: '00000000-0000-0000-0000-000000000099',
+        name: adminName,
+        email: adminEmail,
+        password: adminPassword,
+        role: 'SUPER_ADMIN',
+        status: 'ACTIVE',
+        merchantId: defaultMerchant.id
+      });
+      console.log(`[migrate] Seeded default Super Admin: ${adminEmail} (Role: SUPER_ADMIN)`);
+    } else {
+      defaultAdmin = existingAdminUser;
+      if (defaultAdmin.role !== 'SUPER_ADMIN') {
+        userRepo.update(defaultAdmin.id, { role: 'SUPER_ADMIN' });
+      }
+    }
+  } else {
+    defaultAdmin = superAdmins[0];
+  }
+
   return {
     db,
-    defaultMerchant
+    defaultMerchant,
+    defaultAdmin
   };
 }
 

@@ -47,6 +47,7 @@ import { registerPollerRoutes } from './routes/pollers.routes.js';
 import { registerAdminRoutes } from './routes/admin.routes.js';
 import { registerCustomerRoutes } from './routes/customer.routes.js';
 import { registerDeviceRoutes } from './routes/device.routes.js';
+import { registerAuthRoutes } from './routes/auth.routes.js';
 import { getWhatsAppBerryService, WhatsAppBerryService } from './services/whatsapp-berry.service.js';
 
 export function createPaymentApp(customDb = null, options = {}) {
@@ -441,6 +442,7 @@ export function createPaymentApp(customDb = null, options = {}) {
   registerAdminRoutes(server, context);
   registerCustomerRoutes(server, context);
   registerDeviceRoutes(server, context);
+  registerAuthRoutes(server, context);
 
   function destroy() {
     clearInterval(queueSyncDaemon);

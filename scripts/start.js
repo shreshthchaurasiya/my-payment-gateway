@@ -37,6 +37,86 @@ const branding = merchant?.branding || {};
 const domain = (branding.cloudflareDomain || branding.domainTld || process.env.CLOUDFLARE_DOMAIN || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
 const prefix = (branding.deploymentPrefix || branding.domainPrefix || process.env.DEPLOYMENT_PREFIX || 'pay').trim().toLowerCase().replace(/[^a-z0-9-_]/g, '') || 'pay';
 
+const isStandalone = !!(process.env.PORT || process.env.STANDALONE === 'true' || !domain);
+
+if (isStandalone && !domain) {
+  console.log('[✓] Runtime Mode: STANDALONE / HOSTINGER GATEWAY (Single Public Port)');
+  const masterPort = Number(process.env.PORT || 7000);
+
+  // Set internal service ports so they never collide with masterPort
+  process.env.CHECKOUT_PORTAL_PORT = process.env.CHECKOUT_PORTAL_PORT || '7100';
+  process.env.PAYMENT_API_PORT = process.env.PAYMENT_API_PORT || '6100';
+  process.env.MERCHANT_ADMIN_PORT = process.env.MERCHANT_ADMIN_PORT || '6001';
+  process.env.CONTROL_CENTER_PORT = process.env.CONTROL_CENTER_PORT || '8090';
+
+  console.log('[2/3] Launching Local Process Supervisor on port 8090...');
+  const cc = await startControlCenter(8090);
+
+  console.log('[3/3] Starting core production gateway services...\n');
+  await cc.processManager.startAll();
+
+  // Create Universal Hostinger Gateway Proxy on masterPort
+  const http = await import('node:http');
+  const masterServer = http.createServer((req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const pathname = url.pathname;
+
+    let targetPort = Number(process.env.CHECKOUT_PORTAL_PORT || 7100);
+    if (pathname.startsWith('/api/')) {
+      targetPort = Number(process.env.PAYMENT_API_PORT || 6100);
+    } else if (pathname === '/' || pathname.startsWith('/admin') || pathname === '/youpi-sms-gateway.apk') {
+      targetPort = Number(process.env.MERCHANT_ADMIN_PORT || 6001);
+    } else if (pathname.startsWith('/checkout') || pathname === '/youpi.js' || pathname.startsWith('/sdk') || pathname.startsWith('/icons')) {
+      targetPort = Number(process.env.CHECKOUT_PORTAL_PORT || 7100);
+    }
+
+    const proxyReq = http.request({
+      hostname: '127.0.0.1',
+      port: targetPort,
+      path: req.url,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: `localhost:${targetPort}`,
+        'x-forwarded-host': req.headers.host || '',
+        'x-forwarded-proto': req.headers['x-forwarded-proto'] || 'https'
+      }
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      if (!res.headersSent) {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Gateway service temporarily unavailable', details: err.message }));
+      }
+    });
+
+    req.pipe(proxyReq);
+  });
+
+  masterServer.listen(masterPort, '0.0.0.0', () => {
+    console.log('====================================================');
+    console.log(`🟢 YOUPI PG V2 PRODUCTION GATEWAY LIVE ON PORT ${masterPort}`);
+    console.log('====================================================');
+    console.log(`• Checkout: http://localhost:${masterPort}/checkout/:id`);
+    console.log(`• Script:   http://localhost:${masterPort}/youpi.js`);
+    console.log(`• Admin:    http://localhost:${masterPort}/admin`);
+    console.log(`• API:      http://localhost:${masterPort}/api/v1/health`);
+    console.log('====================================================');
+  });
+
+  const shutdown = async () => {
+    console.log('\nStopping all services gracefully...');
+    masterServer.close();
+    await cc.close();
+    console.log('All processes terminated cleanly.');
+    process.exit(0);
+  };
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+} else {
 if (!domain) {
   console.error('\n================================================================');
   console.error('❌ [CONFIGURATION ERROR] PRODUCTION STARTUP FAILED');
@@ -117,3 +197,5 @@ const shutdown = async () => {
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+}
+

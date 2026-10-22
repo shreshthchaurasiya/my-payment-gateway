@@ -253,14 +253,18 @@
         targetUrl = `${this.options.portalUrl}/checkout/demo`;
       }
 
-      // If running on localhost / 127.0.0.1 and targetUrl points to remote domain, normalize to localhost host
-      if (isBrowser && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        if (targetUrl.includes('gauravtesting.online')) {
-          try {
-            const parsed = new URL(targetUrl);
+      // Universal host normalization: if accessed from LAN IP or mobile device, rewrite localhost in targetUrl to browser host
+      if (isBrowser) {
+        try {
+          const parsed = new URL(targetUrl, window.location.href);
+          if ((parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') &&
+              window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            parsed.hostname = window.location.hostname;
+            targetUrl = parsed.toString();
+          } else if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && targetUrl.includes('gauravtesting.online')) {
             targetUrl = `${window.location.protocol}//${window.location.host}${parsed.pathname}${parsed.search}`;
-          } catch {}
-        }
+          }
+        } catch {}
       }
 
       // Add embedded flag and custom params
@@ -394,6 +398,15 @@
 
       const event = e.data.event;
       const rawData = e.data.data || e.data;
+
+      if (event === 'youpi.open_upi_url' && e.data.url) {
+        try {
+          window.location.href = e.data.url;
+        } catch (err) {
+          console.warn('[YouPI SDK] Failed to open UPI intent URL:', err);
+        }
+        return;
+      }
 
       if (event === 'youpi.payment_success') {
         const payload = e.data.data || {};

@@ -126,7 +126,7 @@ export class HttpServer {
   /**
    * Helper to send JSON responses with standard headers.
    */
-  static json(res, statusCode, data) {
+  static json(res, statusCode, data, extraHeaders = {}) {
     const jsonStr = JSON.stringify(data, (key, value) =>
       typeof value === 'bigint' ? value.toString() : value
     );
@@ -135,7 +135,8 @@ export class HttpServer {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, Idempotency-Key, X-Device-Id, X-Timestamp, X-Signature',
-      ...BASE_SECURITY_HEADERS
+      ...BASE_SECURITY_HEADERS,
+      ...extraHeaders
     });
     res.end(jsonStr);
   }

@@ -41,8 +41,20 @@ describe('Merchant Admin Integration Tests', () => {
     assert.equal(json.service, 'merchant-admin');
   });
 
-  test('GET / renders dashboard with queue monitor, observers, counter desk & pairing modal', async () => {
+  test('GET / redirects unauthenticated users to /login', async () => {
     const res = await get('/');
+    assert.equal(res.status, 302);
+    assert.equal(res.headers.location, '/login');
+  });
+
+  test('GET /login renders the authentication portal', async () => {
+    const res = await get('/login');
+    assert.equal(res.status, 200);
+    assert.ok(res.headers['content-type'].includes('text/html'));
+  });
+
+  test('GET /dashboard with admin token renders dashboard with queue monitor, observers, counter desk & pairing modal', async () => {
+    const res = await get('/dashboard', { authorization: `Bearer ${getAdminToken()}` });
     assert.equal(res.status, 200);
     assert.ok(res.headers['content-type'].includes('text/html'));
 

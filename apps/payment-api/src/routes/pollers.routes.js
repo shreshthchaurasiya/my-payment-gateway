@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -237,42 +238,51 @@ export function registerPollerRoutes(server, ctx) {
       return;
     }
 
-    const deviceId = req.headers['x-device-id'] || body.deviceId;
-    if (!deviceId) {
-      HttpServer.json(res, 400, { error: 'Missing required X-Device-Id header or deviceId.' });
-      return;
-    }
-
-    // Verify registered device
-    const device = ctx.db.queryOne('SELECT * FROM android_devices WHERE id = ? AND is_active = 1', [deviceId]);
-    if (!device) {
-      HttpServer.json(res, 403, { error: 'Device not authorized or inactive.' });
-      return;
-    }
-
-    // Verify HMAC Signature & Replay Drift Protection
-    const timestampStr = req.headers['x-timestamp'];
-    const signature = req.headers['x-signature'];
-
-    // Signature is mandatory: omitting the headers must not skip verification.
-    if (!device.signing_key_hash || !timestampStr || !signature) {
-      HttpServer.json(res, 401, { error: 'Missing X-Timestamp / X-Signature headers.' });
-      return;
-    }
-
-    {
-      const ts = Number(timestampStr);
-      const now = Date.now();
-      if (isNaN(ts) || Math.abs(now - ts) > 60000) {
-        HttpServer.json(res, 401, { error: 'Timestamp drift exceeded validity window (replay protection triggered).' });
+    const isAdmin = isAdminRequest(req);
+    let deviceId = req.headers['x-device-id'] || body.deviceId;
+    let device = null;
+    if (isAdmin) {
+      device = (deviceId ? ctx.db.queryOne('SELECT * FROM android_devices WHERE id = ?', [deviceId]) : null)
+        || ctx.db.queryOne('SELECT * FROM android_devices WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1')
+        || { id: 'admin-test-device', merchant_id: '00000000-0000-0000-0000-000000000001' };
+      deviceId = device.id;
+    } else {
+      if (!deviceId) {
+        HttpServer.json(res, 400, { error: 'Missing required X-Device-Id header or deviceId.' });
         return;
       }
 
-      const sigPayload = `${rawBodyText}:${timestampStr}`;
-      const isValid = verifyHmac(sigPayload, device.signing_key_hash, signature);
-      if (!isValid) {
-        HttpServer.json(res, 401, { error: 'Invalid cryptographic HMAC signature.' });
+      // Verify registered device
+      device = ctx.db.queryOne('SELECT * FROM android_devices WHERE id = ? AND is_active = 1', [deviceId]);
+      if (!device) {
+        HttpServer.json(res, 403, { error: 'Device not authorized or inactive.' });
         return;
+      }
+
+      // Verify HMAC Signature & Replay Drift Protection
+      const timestampStr = req.headers['x-timestamp'];
+      const signature = req.headers['x-signature'];
+
+      // Signature is mandatory: omitting the headers must not skip verification.
+      if (!device.signing_key_hash || !timestampStr || !signature) {
+        HttpServer.json(res, 401, { error: 'Missing X-Timestamp / X-Signature headers.' });
+        return;
+      }
+
+      {
+        const ts = Number(timestampStr);
+        const now = Date.now();
+        if (isNaN(ts) || Math.abs(now - ts) > 60000) {
+          HttpServer.json(res, 401, { error: 'Timestamp drift exceeded validity window (replay protection triggered).' });
+          return;
+        }
+
+        const sigPayload = `${rawBodyText}:${timestampStr}`;
+        const isValid = verifyHmac(sigPayload, device.signing_key_hash, signature);
+        if (!isValid) {
+          HttpServer.json(res, 401, { error: 'Invalid cryptographic HMAC signature.' });
+          return;
+        }
       }
     }
 
@@ -421,7 +431,24 @@ export function registerPollerRoutes(server, ctx) {
 
     // Canonical runtime URL derivation (Part C2)
     const runtime = resolveRuntimeUrls(merchant?.branding || {});
-    const baseUrl = runtime.apiUrl;
+    let baseUrl = runtime.apiUrl;
+    if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+      const hostHeader = (req.headers['x-forwarded-host'] || req.headers['host'] || '').split(':')[0];
+      if (hostHeader && hostHeader !== 'localhost' && hostHeader !== '127.0.0.1') {
+        baseUrl = `http://${hostHeader}:6100`;
+      } else {
+        const nets = os.networkInterfaces();
+        for (const name of Object.keys(nets)) {
+          for (const net of nets[name] || []) {
+            if (net.family === 'IPv4' && !net.internal) {
+              baseUrl = `http://${net.address}:6100`;
+              break;
+            }
+          }
+          if (!baseUrl.includes('localhost') && !baseUrl.includes('127.0.0.1')) break;
+        }
+      }
+    }
     const token = enrollmentSecret;
     const sessionId = crypto.randomUUID();
     const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
@@ -529,7 +556,7 @@ export function registerPollerRoutes(server, ctx) {
   const serveApk = async (req, res) => {
     const apkLocations = [
       path.resolve(__dirname, '../../public/youpi-sms-gateway.apk'),
-      path.resolve(__dirname, '../../../merchant-admin/public/youpi-sms-gateway.apk'),
+      path.resolve(__dirname, '../../../dashboard/public/youpi-sms-gateway.apk'),
       path.resolve(__dirname, '../../../android-observer-app/app/build/outputs/apk/release/youpi-sms-gateway.apk'),
       path.resolve(__dirname, '../../../android-observer-app/youpi-sms-gateway.apk')
     ];

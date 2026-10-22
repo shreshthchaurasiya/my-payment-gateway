@@ -1,5 +1,5 @@
 {
-  "name": "merchant-admin",
+  "name": "dashboard",
   "version": "1.0.0",
   "description": "Merchant Administration Portal and Operational Control for YOUPI PG",
   "type": "module",

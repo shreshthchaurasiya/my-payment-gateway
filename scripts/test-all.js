@@ -12,7 +12,7 @@ const testFiles = [
   'packages/merchant-sdk/src/__tests__/youpi-universal-integration.test.js',
   'apps/checkout-portal/src/__tests__/checkout-portal.test.js',
   'apps/coin-wallet-store/src/__tests__/coin-wallet-store.test.js',
-  'apps/merchant-admin/src/__tests__/merchant-admin.test.js',
+  'apps/dashboard/src/__tests__/merchant-admin.test.js',
   'apps/payment-help/src/__tests__/payment-help.test.js',
   'apps/gmail-observer/src/__tests__/gmail-observer.test.js',
   'apps/sms-observer/src/__tests__/sms-observer.test.js',
@@ -32,7 +32,8 @@ const testFiles = [
   'apps/payment-api/src/__tests__/whitelabel-branding.test.js',
   'apps/payment-api/src/__tests__/cod-parallel-timer-decoupling.test.js',
   'scripts/chaos-concurrency.test.js',
-  'scripts/production-infrastructure.test.js'
+  'scripts/production-infrastructure.test.js',
+  'scripts/test-webhook-tester.js'
 ];
 
 console.log('============================================================');

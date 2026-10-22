@@ -1,4 +1,5 @@
 import { getAdminToken, getObserverToken, safeEqual } from '@youpi/common';
+import { getDatabase, UserRepository } from '@youpi/db';
 import { HttpServer } from './server.js';
 
 /** Admin-prefixed routes that are intentionally public (static APK download for pairing). */
@@ -62,6 +63,32 @@ export function authGuard(req, res, pathname, url) {
     (level === 'observer' && safeEqual(presented, getObserverToken()))
   );
   if (ok) return false;
+
+  // Also accept active user sessions (SUPER_ADMIN and MERCHANT)
+  if (level === 'admin' || level === 'observer') {
+    try {
+      const userRepo = new UserRepository(getDatabase());
+      let sessionToken = presented;
+      if (!sessionToken && req.headers.cookie) {
+        const match = /(?:^|;\s*)ypg_session=([^;]+)/.exec(req.headers.cookie);
+        if (match) sessionToken = decodeURIComponent(match[1].trim());
+      }
+      if (sessionToken) {
+        const session = userRepo.findSessionByToken(sessionToken);
+        if (session && (session.role === 'SUPER_ADMIN' || session.role === 'MERCHANT')) {
+          req.session = session;
+          req.user = session.user || { id: session.userId, role: session.role, merchantId: session.merchantId };
+          if (session.role === 'MERCHANT') {
+            if (pathname.startsWith('/api/v1/admin/dev/') || pathname.startsWith('/api/v1/admin/clients')) {
+              HttpServer.json(res, 403, { error: 'Forbidden: Super Admin access required', code: 'FORBIDDEN' });
+              return true;
+            }
+          }
+          return false; // Authorized
+        }
+      }
+    } catch {}
+  }
 
   HttpServer.json(res, 401, { error: 'Unauthorized', code: 'AUTH_REQUIRED' });
   return true;

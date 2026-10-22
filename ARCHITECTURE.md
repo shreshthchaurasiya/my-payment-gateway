@@ -254,7 +254,7 @@ graph TD
 2. **Offline Store Counter Mode:**
    - Designed for retail cashier counters.
    - Exposes **UPI QR**, **Cash at Till (`CASH_COUNTER`)**, and **Card at POS (`CARD_COUNTER`)**.
-   - Cashier panel ([admin.html](apps/merchant-admin/src/views/admin.html)) displays a real-time till dock that polls `/api/v1/admin/counter-pending` and broadcasts instant approval/decline via SSE directly to the customer checkout screen.
+   - Cashier panel ([dashboard.html](apps/dashboard/src/views/dashboard.html)) displays a real-time till dock that polls `/api/v1/admin/counter-pending` and broadcasts instant approval/decline via SSE directly to the customer checkout screen.
 
 ---
 

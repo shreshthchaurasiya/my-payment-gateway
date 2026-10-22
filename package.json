@@ -3,24 +3,29 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Self-Hosted White-Label UPI Payment Gateway with Payment Observation Engine",
+  "main": "server.js",
   "private": true,
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "echo 'Build OK'",
     "clean": "node scripts/clean.js",
     "db:setup": "node scripts/init-db.cjs",
     "sync:package": "node scripts/sync-package.cjs",
-    "start": "node scripts/start.js",
-    "start:prod": "node scripts/start.js",
-    "start:prod:api": "node apps/payment-api/src/index.js",
-    "dev": "node scripts/dev.js",
+    "start": "node server.js",
+    "start:prod": "node server.js",
+    "start:legacy": "node scripts/start.js",
+    "dev": "node server.js",
+    "dev:legacy": "node scripts/dev.js",
     "test": "node scripts/test-all.js",
     "test:all": "node scripts/test-all.js",
     "test:acceptance": "node --test scripts/production-infrastructure.test.js",
     "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",

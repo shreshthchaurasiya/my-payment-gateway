@@ -130,7 +130,7 @@ try {
   const targets = [
     path.resolve(REPO_ROOT, 'apps/android-observer-app/youpi-sms-gateway.apk'),
     path.resolve(REPO_ROOT, 'apps/payment-api/public/youpi-sms-gateway.apk'),
-    path.resolve(REPO_ROOT, 'apps/merchant-admin/public/youpi-sms-gateway.apk')
+    path.resolve(REPO_ROOT, 'apps/dashboard/public/youpi-sms-gateway.apk')
   ];
 
   for (const t of targets) {

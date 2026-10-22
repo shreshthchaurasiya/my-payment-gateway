@@ -1323,6 +1323,10 @@
 
 <body>
 
+  <!-- Injected Server Context (JSON Data Islands) -->
+  <script type="application/json" id="youpiInjectedUser">{{CURRENT_USER_JSON}}</script>
+  <script type="application/json" id="youpiInjectedMerchant">{{CURRENT_MERCHANT_JSON}}</script>
+
   <!-- Mobile Drawer Backdrop -->
   <div id="cfSidebarBackdrop" class="cf-sidebar-backdrop" onclick="closeMobileSidebar()"></div>
 
@@ -1332,15 +1336,15 @@
       <div class="cf-brand-logo">
         <span class="cf-brand-icon">🛡️</span>
         <div class="cf-brand-info">
-          <span class="cf-brand-title">YOUPI PG</span>
-          <span class="cf-brand-sub">FinTech Dashboard</span>
+          <span class="cf-brand-title" id="cfSidebarBrandTitle">YOUPI PG</span>
+          <span class="cf-brand-sub" id="cfSidebarBrandSub">FinTech Dashboard</span>
         </div>
       </div>
       <button class="cf-sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close Sidebar">✕</button>
     </div>
 
     <!-- Quick Environment & Search Box -->
-    <div class="cf-sidebar-env-badge" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+    <div class="cf-sidebar-env-badge admin-only" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
       <span style="display:flex; align-items:center;">
         <span class="cf-env-dot">●</span>
         <span id="sidebarEnvText">ENV: LOCALHOST</span>
@@ -1358,6 +1362,14 @@
         <button class="cf-nav-item active" data-sec="operations" data-sub="subViewOpsLive" onclick="navigateTo('operations', 'subViewOpsLive')">
           <span class="cf-nav-icon">📊</span>
           <span class="cf-nav-label">Live Monitor &amp; Slots</span>
+        </button>
+        <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsLinks" onclick="navigateTo('operations', 'subViewOpsLinks')">
+          <span class="cf-nav-icon">🔗</span>
+          <span class="cf-nav-label">Payment Links</span>
+        </button>
+        <button class="cf-nav-item admin-only" data-sec="operations" data-sub="subViewOpsClients" onclick="navigateTo('operations', 'subViewOpsClients')">
+          <span class="cf-nav-icon">👥</span>
+          <span class="cf-nav-label">Clients &amp; Merchants</span>
         </button>
         <button class="cf-nav-item" data-sec="operations" data-sub="subViewOpsTransactions" onclick="navigateTo('operations', 'subViewOpsTransactions')">
           <span class="cf-nav-icon">💳</span>
@@ -1413,11 +1425,11 @@
           <span class="cf-nav-icon">📧</span>
           <span class="cf-nav-label">Gmail &amp; WhatsApp API</span>
         </button>
-        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevCloudflare" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
+        <button class="cf-nav-item admin-only" data-sec="developerHub" data-sub="subViewDevCloudflare" onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
           <span class="cf-nav-icon">☁️</span>
           <span class="cf-nav-label">Cloudflare Tunnel</span>
         </button>
-        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevSupervisor" onclick="navigateTo('developerHub', 'subViewDevSupervisor')">
+        <button class="cf-nav-item admin-only" data-sec="developerHub" data-sub="subViewDevSupervisor" onclick="navigateTo('developerHub', 'subViewDevSupervisor')">
           <span class="cf-nav-icon">🖥️</span>
           <span class="cf-nav-label">System Supervisor</span>
         </button>
@@ -1485,7 +1497,7 @@
         </div>
 
         <!-- YOUPI Store Port 5000 Switch Badge -->
-        <div class="store-switch-badge is-offline" id="headerStoreBadge" onclick="toggleYoupiStore()"
+        <div class="store-switch-badge is-offline admin-only" id="headerStoreBadge" onclick="toggleYoupiStore()"
           title="Click to 1-Click Enable/Disable YOUPI Showcase Store on Port 5000">
           <span id="headerStoreDot">●</span>
           <span id="headerStoreText">Store (5000): Checking...</span>
@@ -1498,7 +1510,7 @@
         </span>
 
         <!-- Environment Mode -->
-        <div
+        <div class="admin-only"
           style="display:flex; align-items:center; gap:0.4rem; background:var(--bg-card); padding:0.3rem 0.75rem; border-radius:9999px; border:1px solid var(--border); cursor:pointer;"
           onclick="navigateTo('developerHub', 'subViewDevCloudflare')">
           <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">ENV:</span>
@@ -1510,6 +1522,12 @@
           <div class="pulse-dot"></div>
           <span>Live Syncing</span>
         </div>
+
+        <!-- User Info & Sign Out -->
+        <span id="headerUserDisplay" style="font-size:0.78rem; font-weight:700; color:var(--text-heading); margin-right:4px;"></span>
+        <button class="btn btn-secondary" onclick="logoutAdmin()" style="font-size:0.75rem; padding:0.35rem 0.75rem; border-color:rgba(239,68,68,0.3); color:#fca5a5; background:rgba(239,68,68,0.08);">
+          Sign Out
+        </button>
       </div>
     </header>
 
@@ -1562,6 +1580,211 @@
         <div class="kpi-box">
           <div class="kpi-title">Dual Verified (2 Sources: SMS + Gmail)</div>
           <div class="kpi-value" id="kpiDualVerify" style="color:var(--success); font-size:1.5rem;">0</div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.0: REGISTERED CLIENTS & MERCHANTS (Super Admin Control Center) -->
+      <div id="subViewOpsClients" hidden>
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">👥 Registered Clients &amp; Merchant Stores</div>
+              <div class="card-subtext">Comprehensive platform directory of all sovereign merchant clients, API credentials, and traffic volumes.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" onclick="loadAdminClients()">🔄 Refresh Directory</button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:1rem; margin-bottom:1.25rem; flex-wrap:wrap; align-items:center;">
+            <div style="flex:1; min-width:260px;">
+              <input type="text" id="adminClientSearch" placeholder="Search by merchant name, slug, email, or UPI..." 
+                oninput="filterAdminClients(this.value)" style="width:100%; padding:0.6rem 1rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border);" />
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-muted);">
+              Total Merchants: <strong id="adminTotalClientsCount" style="color:var(--text-heading);">0</strong>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border); background:var(--bg-subtle);">
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">BUSINESS / STORE</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">CONTACT &amp; OWNER</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">RECEIVING VPA</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">ORDERS / VOLUME</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">API CREDENTIALS</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">USERS</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">REGISTERED</th>
+                </tr>
+              </thead>
+              <tbody id="adminClientsTableBody">
+                <tr>
+                  <td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">
+                    Loading client directory...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW 1.05: PAYMENT LINKS & INSTANT CHECKOUT STUDIO (Razorpay Standard) -->
+      <div id="subViewOpsLinks" hidden>
+        <!-- Top Card: Create Payment Link -->
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">🔗 Create Instant Payment Link</div>
+              <div class="card-subtext">Generate single-use, sovereign payment links. Share directly on WhatsApp/SMS or test your live customer checkout.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary" onclick="createQuickOneRupeeLink()" style="font-size:0.8rem;">🧪 Quick ₹1 Test Link</button>
+            </div>
+          </div>
+
+          <form id="plCreateForm" onsubmit="handleCreatePaymentLink(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <!-- Left Column: Amount & Purpose -->
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                  Amount (INR) <span style="color:#ef4444;">*</span>
+                </label>
+                <div style="position:relative; display:flex; align-items:center;">
+                  <span style="position:absolute; left:12px; font-weight:800; color:var(--text-muted); font-size:1.1rem;">₹</span>
+                  <input type="number" id="plInputAmount" step="0.01" min="1" max="100000" value="1.00" required
+                    style="width:100%; padding:0.65rem 1rem 0.65rem 2rem; font-size:1.2rem; font-weight:800; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading);" />
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Direct deposit into your active VPA. Zero gateway fee (0.00%).</div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                  Payment For / Purpose <span style="color:#ef4444;">*</span>
+                </label>
+                <input type="text" id="plInputPurpose" placeholder="e.g. T-Shirt Order #1001, Advance Payment" required
+                  style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.88rem;" />
+              </div>
+            </div>
+
+            <!-- Right Column: Customer Details & Order ID -->
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                <div>
+                  <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                    Customer Name <span style="font-size:0.72rem; color:var(--text-muted);">(Optional)</span>
+                  </label>
+                  <input type="text" id="plInputCustName" placeholder="e.g. Rahul Sharma"
+                    style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.85rem;" />
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                    Customer Phone <span style="font-size:0.72rem; color:var(--text-muted);">(Optional)</span>
+                  </label>
+                  <input type="tel" id="plInputCustPhone" placeholder="e.g. 9876543210"
+                    style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.85rem;" />
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">
+                  Custom Reference / Order ID <span style="font-size:0.72rem; color:var(--text-muted);">(Auto-generated if empty)</span>
+                </label>
+                <input type="text" id="plInputOrderId" placeholder="e.g. ORDER-2026-X"
+                  style="width:100%; padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-subtle); color:var(--text-heading); font-size:0.85rem;" />
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; align-items:flex-end; margin-top:auto;">
+                <button type="submit" id="btnGeneratePl" class="btn btn-primary" style="padding:0.7rem 1.75rem; font-size:0.92rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
+                  <span>⚡ Generate Payment Link</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Generated Link Hero Result Box (Shown dynamically upon generation) -->
+          <div id="plResultHero" style="display:none; margin-top:1.5rem; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.04); border-radius:12px; padding:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
+              <div style="flex:1; min-width:280px;">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+                  <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+                  <strong style="color:#10b981; font-size:0.95rem;">Payment Link Ready &amp; Accepting UPI</strong>
+                  <span id="plResultAmountBadge" class="badge badge-success" style="font-size:0.85rem; padding:0.2rem 0.6rem;">₹1.00</span>
+                </div>
+                <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.85rem;" id="plResultMetaDesc">
+                  Single-use UPI dynamic session created.
+                </div>
+
+                <!-- URL Bar with Copy Button -->
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem;">
+                  <input type="text" id="plResultUrlInput" readonly
+                    style="flex:1; font-family:monospace; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:#38bdf8;" />
+                  <button type="button" class="btn btn-secondary" onclick="copyCurrentPaymentLink()" style="font-weight:700; padding:0.65rem 1rem;">
+                    📋 Copy
+                  </button>
+                </div>
+
+                <!-- Action Button Cluster (WhatsApp, Open, Modal Preview) -->
+                <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+                  <button type="button" class="btn btn-secondary" onclick="shareCurrentPaymentLinkWhatsApp()" style="background:#25D366; color:#fff; border:none; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>💬 Share on WhatsApp</span>
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="openCurrentPaymentLinkTab()" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>🚀 Open Customer Checkout</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="previewCurrentPaymentLinkModal()" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>👁️ Live Modal Preview</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mini QR Code Box -->
+              <div style="display:flex; flex-direction:column; align-items:center; background:var(--bg-card); padding:1rem; border-radius:12px; border:1px solid var(--border); min-width:160px;">
+                <div id="plResultQrContainer" style="width:130px; height:130px; display:flex; align-items:center; justify-content:center; background:#fff; border-radius:8px; padding:6px; margin-bottom:0.5rem;">
+                  <span class="spinner" style="width:20px; height:20px; border:2px solid #3b82f6; border-top-color:transparent; border-radius:50%; display:inline-block; animation:spin 1s linear infinite;"></span>
+                </div>
+                <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-align:center;">Scan with PhonePe, GPay, Paytm</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Card: Payment Links History / Ledger -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-heading">📋 Payment Links History &amp; Orders</div>
+              <div class="card-subtext">Real-time status of all generated payment links, verification states, and customer payments.</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary" onclick="loadPaymentLinksLedger()">🔄 Refresh</button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border); background:var(--bg-subtle);">
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">CREATED AT</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">ORDER / REF ID</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">AMOUNT</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">PAYMENT METHOD</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">STATUS</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">UTR / REFERENCE</th>
+                  <th style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted); text-align:right;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="paymentLinksTableBody">
+                <tr>
+                  <td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">
+                    Loading payment links...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1764,7 +1987,7 @@
             <div style="display:flex; gap:0.5rem;">
               <a class="btn btn-success" href="/youpi-sms-gateway.apk" download="youpi-sms-gateway.apk">📲 Download
                 Companion APK</a>
-              <button class="btn btn-secondary" onclick="switchSection('developerHub', 'subTabAndroid')">Configure
+              <button class="btn btn-secondary" onclick="navigateTo('developerHub', 'subViewDevAndroid')">Configure
                 Pairing ↗</button>
             </div>
           </div>
@@ -1785,7 +2008,7 @@
                 immunity.
               </div>
             </div>
-            <button class="btn btn-primary" onclick="switchSection('developerHub', 'subTabGmail')">Configure Gmail API
+            <button class="btn btn-primary" onclick="navigateTo('developerHub', 'subViewDevProtocols')">Configure Gmail API
               ↗</button>
           </div>
         </div>
@@ -3861,13 +4084,35 @@
       const KEY = 'youpi_admin_token';
       const nativeFetch = window.fetch.bind(window);
       let pending = null;
+      const injectedToken = '{{ADMIN_API_TOKEN}}';
 
-      const read = () => { try { return sessionStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
+      const read = () => {
+        try {
+          const t = sessionStorage.getItem(KEY);
+          if (t) return t;
+          const userToken = localStorage.getItem('youpi_auth_token');
+          if (userToken) return userToken;
+          if (injectedToken && !injectedToken.startsWith('{{')) {
+            sessionStorage.setItem(KEY, injectedToken);
+            return injectedToken;
+          }
+          return '';
+        } catch (e) {
+          const userToken = localStorage.getItem('youpi_auth_token');
+          if (userToken) return userToken;
+          return (injectedToken && !injectedToken.startsWith('{{')) ? injectedToken : '';
+        }
+      };
       const write = (t) => { try { sessionStorage.setItem(KEY, t); } catch (e) {} };
       const clear = () => { try { sessionStorage.removeItem(KEY); } catch (e) {} };
 
       function isProtected(url) {
-        return /\/api\/v1\/admin\//.test(url) && !/\/admin\/sms-gateway\/download-apk/.test(url);
+        return (
+          /\/api\/v1\/admin\//.test(url) ||
+          /\/api\/services/.test(url) ||
+          /\/api\/admin\//.test(url) ||
+          /\/api\/v1\/observers\/sms/.test(url)
+        ) && !/\/admin\/sms-gateway\/download-apk/.test(url);
       }
 
       function prompt(message) {
@@ -3910,17 +4155,24 @@
       async function authedFetch(input, init) {
         const url = typeof input === 'string' ? input : (input && input.url) || '';
         if (!isProtected(url)) return nativeFetch(input, init);
-        if (!read()) {
+
+        const isMerchant = window.CURRENT_USER && window.CURRENT_USER.role === 'MERCHANT';
+
+        if (!read() && !isMerchant) {
           await prompt();
           if (typeof connectAdminEventsSse === 'function') connectAdminEventsSse();
         }
         const attempt = () => {
           const headers = new Headers((init && init.headers) || (input && input.headers) || {});
-          headers.set('Authorization', 'Bearer ' + read());
+          const t = read();
+          if (t) headers.set('Authorization', 'Bearer ' + t);
+          if (typeof currentMerchantId !== 'undefined' && currentMerchantId) {
+            headers.set('x-merchant-id', currentMerchantId);
+          }
           return nativeFetch(input, Object.assign({}, init, { headers }));
         };
         let res = await attempt();
-        if (res.status === 401) {
+        if (res.status === 401 && !isMerchant) {
           clear();
           await prompt('That token was rejected. Enter the admin API token again.');
           res = await attempt();
@@ -3933,13 +4185,38 @@
       return { token: read, ensure: () => (read() ? Promise.resolve() : prompt()) };
     })();
 
+    const CURRENT_USER = (function() {
+      try {
+        const el = document.getElementById('youpiInjectedUser');
+        if (el && el.textContent && !el.textContent.startsWith('{{')) {
+          return JSON.parse(el.textContent);
+        }
+      } catch (e) {}
+      return null;
+    })();
+
+    const CURRENT_MERCHANT = (function() {
+      try {
+        const el = document.getElementById('youpiInjectedMerchant');
+        if (el && el.textContent && !el.textContent.startsWith('{{')) {
+          return JSON.parse(el.textContent);
+        }
+      } catch (e) {}
+      return null;
+    })();
+
+    window.CURRENT_USER = CURRENT_USER;
+    window.CURRENT_MERCHANT = CURRENT_MERCHANT;
+
     const API_BASE = "{{API_BASE_URL}}";
     let currentEnvMode = 'localhost';
     let currentDomainPrefix = 'pay';
     let currentDomainTld = '';
     let currentSellingMode = 'ONLINE';
-    let currentMerchantId = '00000000-0000-0000-0000-000000000001';
-    let currentMerchantBranding = {};
+    let currentMerchantId = (CURRENT_USER && CURRENT_USER.role === 'MERCHANT' && (CURRENT_USER.merchantId || CURRENT_MERCHANT?.id))
+      ? (CURRENT_USER.merchantId || CURRENT_MERCHANT.id)
+      : '00000000-0000-0000-0000-000000000001';
+    let currentMerchantBranding = (CURRENT_MERCHANT && CURRENT_MERCHANT.branding) || {};
     let settingsLoaded = false;
     let pollingTimer = null;
     let waPollingTimer = null;
@@ -3947,6 +4224,40 @@
     let activeSection = 'operations';
     let activeSubTab = 'subViewOpsLive';
     let servicesList = [];
+
+    // --- APPLY USER ROLE CONTEXT & UI RESTRICTIONS ---
+    function applyUserRoleConfig() {
+      const isMerchant = CURRENT_USER && CURRENT_USER.role === 'MERCHANT';
+      if (isMerchant) {
+        let style = document.getElementById('roleAdminHideStyle');
+        if (!style) {
+          style = document.createElement('style');
+          style.id = 'roleAdminHideStyle';
+          style.textContent = '.admin-only { display: none !important; }';
+          document.head.appendChild(style);
+        }
+
+        const bTitle = document.getElementById('cfSidebarBrandTitle');
+        if (bTitle) {
+          bTitle.textContent = (CURRENT_MERCHANT && CURRENT_MERCHANT.businessName) || CURRENT_USER.name || 'Merchant Console';
+        }
+        const bSub = document.getElementById('cfSidebarBrandSub');
+        if (bSub) {
+          bSub.textContent = 'Merchant Portal';
+        }
+
+        const userDisp = document.getElementById('headerUserDisplay');
+        if (userDisp) {
+          userDisp.textContent = `${CURRENT_USER.name} (Merchant)`;
+        }
+      } else {
+        const userDisp = document.getElementById('headerUserDisplay');
+        if (userDisp) {
+          userDisp.textContent = CURRENT_USER?.name ? `${CURRENT_USER.name} (Super Admin)` : 'Super Admin';
+        }
+      }
+    }
+    applyUserRoleConfig();
 
     // Helper to escape HTML safely
     function escapeHtml(str) {
@@ -4033,6 +4344,8 @@
       };
       const subNames = {
         subViewOpsLive: 'Live Monitor & Slots',
+        subViewOpsLinks: 'Payment Links',
+        subViewOpsClients: 'Clients & Merchants',
         subViewOpsCounter: 'Counter Desk (POS)',
         subViewOpsTransactions: 'Transactions Ledger',
         subViewOpsObservers: 'Payment Observers Status',
@@ -4057,6 +4370,10 @@
 
     // --- NAVIGATION CONTROLLER: 3 HIGH-LEVEL SECTIONS ---
     function switchSection(sectionId, targetSubTab = null) {
+      if (targetSubTab === 'subTabGmail') targetSubTab = 'subViewDevProtocols';
+      if (targetSubTab === 'subTabAndroid') targetSubTab = 'subViewDevAndroid';
+      if (targetSubTab === 'subTabVpa') targetSubTab = 'subViewStoreVpa';
+
       activeSection = sectionId;
       manualThemeOverride = null; // Auto-switching restores when navigating tabs
       updateThemeForSection(sectionId);
@@ -4093,9 +4410,12 @@
       } else if (sectionId === 'storeSettings') {
         if (!settingsLoaded) fetchGatewaySettings();
       } else if (sectionId === 'developerHub') {
-        loadServices();
-        connectServicesLogsSse();
-        fetchTunnelStatus();
+        const isMerchant = CURRENT_USER && CURRENT_USER.role === 'MERCHANT';
+        if (!isMerchant) {
+          loadServices();
+          connectServicesLogsSse();
+          fetchTunnelStatus();
+        }
       } else if (sectionId === 'security') {
         fetchBannedUsers();
       }
@@ -4105,10 +4425,14 @@
       const subNav = document.getElementById('subNavBar');
       subNav.innerHTML = '';
 
+      const isMerchant = CURRENT_USER && CURRENT_USER.role === 'MERCHANT';
+
       let items = [];
       if (sectionId === 'operations') {
         items = [
           { id: 'subViewOpsLive', label: '📊 Live Monitor & Slots', viewId: 'subViewOpsLive' },
+          { id: 'subViewOpsLinks', label: '🔗 Payment Links', viewId: 'subViewOpsLinks' },
+          ...(!isMerchant ? [{ id: 'subViewOpsClients', label: '👥 Clients & Merchants', viewId: 'subViewOpsClients' }] : []),
           { id: 'subViewOpsCounter', label: '🏪 Counter Desk (POS Cashier)', viewId: 'subViewOpsCounter' },
           { id: 'subViewOpsTransactions', label: '💳 Transactions Ledger', viewId: 'subViewOpsTransactions' },
           { id: 'subViewOpsObservers', label: '📡 Payment Observers Status', viewId: 'subViewOpsObservers' }
@@ -4122,8 +4446,10 @@
       } else if (sectionId === 'developerHub') {
         items = [
           { id: 'subViewDevSimulator', label: '🎮 Payment Simulator', viewId: 'subViewDevSimulator' },
-          { id: 'subViewDevSupervisor', label: '🖥️ System Supervisor & Store (5000)', viewId: 'subViewDevSupervisor' },
-          { id: 'subViewDevCloudflare', label: '☁️ Cloudflare Tunnel', viewId: 'subViewDevCloudflare' },
+          ...(!isMerchant ? [
+            { id: 'subViewDevSupervisor', label: '🖥️ System Supervisor & Store (5000)', viewId: 'subViewDevSupervisor' },
+            { id: 'subViewDevCloudflare', label: '☁️ Cloudflare Tunnel', viewId: 'subViewDevCloudflare' }
+          ] : []),
           { id: 'subViewDevWebhooks', label: '🔐 Webhooks & Secrets', viewId: 'subViewDevWebhooks' },
           { id: 'subViewDevAndroid', label: '📱 Android SMS Hub', viewId: 'subViewDevAndroid' },
           { id: 'subViewDevProtocols', label: '📧 Gmail & WhatsApp Protocols', viewId: 'subViewDevProtocols' }
@@ -4173,8 +4499,14 @@
         }
       });
 
+      if (subViewId === 'subViewOpsLinks') {
+        loadPaymentLinksLedger();
+      }
       if (subViewId === 'subViewDevSimulator') {
         initPaymentSimulator();
+      }
+      if (subViewId === 'subViewOpsClients') {
+        loadAdminClients();
       }
       if (subViewId === 'subViewOpsCounter') {
         if (currentSellingMode === 'ONLINE') fetchCodOrders();
@@ -4379,7 +4711,8 @@
     function connectServicesLogsSse() {
       if (servicesLogsSse) return;
       try {
-        servicesLogsSse = new EventSource('/api/logs/stream');
+        const tok = window.__youpiAdminAuth.token();
+        servicesLogsSse = new EventSource('/api/logs/stream' + (tok ? `?token=${encodeURIComponent(tok)}` : ''));
         servicesLogsSse.addEventListener('log', (e) => {
           try {
             const entry = JSON.parse(e.data);
@@ -4731,6 +5064,248 @@
       } catch (e) { }
     }
 
+    // --- PAYMENT LINKS & INSTANT CHECKOUT STUDIO (Razorpay Standard) ---
+    let currentPaymentLinkData = null;
+
+    async function handleCreatePaymentLink(e) {
+      if (e) e.preventDefault();
+      const btn = document.getElementById('btnGeneratePl');
+      const amtInput = document.getElementById('plInputAmount');
+      const purposeInput = document.getElementById('plInputPurpose');
+      const nameInput = document.getElementById('plInputCustName');
+      const phoneInput = document.getElementById('plInputCustPhone');
+      const orderIdInput = document.getElementById('plInputOrderId');
+
+      const amount = parseFloat(amtInput?.value || 0);
+      if (!amount || amount <= 0) {
+        showAdminToast('Please enter a valid amount (minimum ₹1.00)');
+        return;
+      }
+
+      const purpose = (purposeInput?.value || 'Payment Link').trim();
+      const customerName = (nameInput?.value || '').trim();
+      const customerPhone = (phoneInput?.value || '').trim();
+      const customOrderId = (orderIdInput?.value || '').trim();
+      const orderId = customOrderId || ('PL-' + Date.now().toString(36).toUpperCase() + Math.floor(100 + Math.random() * 900));
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner" style="width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; display:inline-block; animation:spin 1s linear infinite;"></span> Creating...';
+      }
+
+      try {
+        const payload = {
+          orderId,
+          amount,
+          customer: {
+            name: customerName,
+            phone: customerPhone
+          },
+          metadata: {
+            purpose,
+            source: 'DASHBOARD_PAYMENT_LINK'
+          }
+        };
+
+        const res = await fetch(`${API_BASE}/api/v1/payments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-merchant-id': currentMerchantId
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to generate payment link');
+        }
+
+        const canonicalUrl = `${window.location.origin}/checkout/${data.paymentId}`;
+        currentPaymentLinkData = {
+          paymentId: data.paymentId,
+          orderId: data.orderId || orderId,
+          amount: (Number(data.amountPaise || (amount * 100)) / 100).toFixed(2),
+          purpose,
+          customerName,
+          customerPhone,
+          url: canonicalUrl
+        };
+
+        // Render Generated Box
+        const heroBox = document.getElementById('plResultHero');
+        const amtBadge = document.getElementById('plResultAmountBadge');
+        const descEl = document.getElementById('plResultMetaDesc');
+        const urlInput = document.getElementById('plResultUrlInput');
+        const qrContainer = document.getElementById('plResultQrContainer');
+
+        if (heroBox) heroBox.style.display = 'block';
+        if (amtBadge) amtBadge.textContent = `₹${currentPaymentLinkData.amount}`;
+        if (descEl) descEl.textContent = `Single-use UPI dynamic session created for Order #${currentPaymentLinkData.orderId} (${escapeHtml(purpose)})`;
+        if (urlInput) urlInput.value = canonicalUrl;
+
+        if (qrContainer) {
+          qrContainer.innerHTML = `<img src="/checkout/${data.paymentId}/qr.svg" alt="UPI QR" style="width:100%; height:100%; object-fit:contain; border-radius:4px;" />`;
+        }
+
+        showAdminToast('Payment Link generated successfully! Ready to accept UPI.');
+        loadPaymentLinksLedger();
+      } catch (err) {
+        showAdminToast(`Error: ${err.message}`);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>⚡ Generate Payment Link</span>';
+        }
+      }
+    }
+
+    function createQuickOneRupeeLink() {
+      const amtInput = document.getElementById('plInputAmount');
+      const purposeInput = document.getElementById('plInputPurpose');
+      const orderIdInput = document.getElementById('plInputOrderId');
+      if (amtInput) amtInput.value = '1.00';
+      if (purposeInput) purposeInput.value = 'Quick ₹1 Test UPI Verification';
+      if (orderIdInput) orderIdInput.value = '';
+      handleCreatePaymentLink();
+    }
+
+    function copyCurrentPaymentLink() {
+      if (!currentPaymentLinkData || !currentPaymentLinkData.url) return;
+      navigator.clipboard.writeText(currentPaymentLinkData.url).then(() => {
+        showAdminToast('Payment link copied to clipboard!');
+      }).catch(() => {
+        const input = document.getElementById('plResultUrlInput');
+        if (input) {
+          input.select();
+          document.execCommand('copy');
+          showAdminToast('Payment link copied!');
+        }
+      });
+    }
+
+    function copySpecificPaymentLink(url) {
+      if (!url) return;
+      navigator.clipboard.writeText(url).then(() => {
+        showAdminToast('Payment link copied to clipboard!');
+      }).catch(() => {
+        showAdminToast('Copied: ' + url);
+      });
+    }
+
+    function shareCurrentPaymentLinkWhatsApp() {
+      if (!currentPaymentLinkData || !currentPaymentLinkData.url) return;
+      const storeName = (window.CURRENT_MERCHANT && window.CURRENT_MERCHANT.businessName) || 'Store';
+      const msg = `Hi${currentPaymentLinkData.customerName ? ' ' + currentPaymentLinkData.customerName : ''}, please complete your payment of ₹${currentPaymentLinkData.amount} for "${currentPaymentLinkData.purpose}" to ${storeName} via UPI:\n\n👉 ${currentPaymentLinkData.url}`;
+      
+      let phoneParam = '';
+      if (currentPaymentLinkData.customerPhone) {
+        const cleanPhone = currentPaymentLinkData.customerPhone.replace(/\D/g, '');
+        const withCountry = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+        phoneParam = `phone=${withCountry}&`;
+      }
+      const waUrl = `https://api.whatsapp.com/send?${phoneParam}text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    function openCurrentPaymentLinkTab() {
+      if (currentPaymentLinkData && currentPaymentLinkData.url) {
+        window.open(currentPaymentLinkData.url, '_blank');
+      }
+    }
+
+    function previewCurrentPaymentLinkModal(explicitUrl = null) {
+      const url = explicitUrl || currentPaymentLinkData?.url;
+      if (!url) return;
+      const modal = document.getElementById('checkoutPreviewModal');
+      const iframe = document.getElementById('checkoutPreviewIframe');
+      if (modal && iframe) {
+        iframe.src = url;
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeCheckoutPreviewModal() {
+      const modal = document.getElementById('checkoutPreviewModal');
+      const iframe = document.getElementById('checkoutPreviewIframe');
+      if (modal) modal.style.display = 'none';
+      if (iframe) iframe.src = 'about:blank';
+    }
+
+    async function loadPaymentLinksLedger() {
+      const tbody = document.getElementById('paymentLinksTableBody');
+      if (!tbody) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/admin/payments`);
+        if (!res.ok) throw new Error('Failed to fetch payments');
+        const data = await res.json();
+        const payments = data.payments || [];
+
+        if (payments.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">No payment links or orders created yet. Click "Generate Payment Link" above to create one.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = payments.map(p => {
+          const canonicalLink = `${window.location.origin}/checkout/${p.id}`;
+          const amount = (Number(p.amountPaise || 0) / 100).toFixed(2);
+          const createdAt = p.createdAt ? new Date(p.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) : 'Just now';
+
+          let statusBadge = '<span class="badge badge-info">INITIATED</span>';
+          if (p.status === 'SUCCESS') {
+            statusBadge = '<span class="badge badge-success">✓ PAID</span>';
+          } else if (p.status === 'ACTIVE') {
+            statusBadge = '<span class="badge badge-warning" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);">⏱ SCANNING</span>';
+          } else if (p.status === 'EXPIRED') {
+            statusBadge = '<span class="badge" style="background:rgba(148,163,184,0.1); color:#94a3b8; border:1px solid rgba(148,163,184,0.2);">EXPIRED</span>';
+          } else if (p.status === 'CANCELLED') {
+            statusBadge = '<span class="badge badge-danger">CANCELLED</span>';
+          }
+
+          const utrDisplay = p.utr 
+            ? `<code style="color:#10b981; font-weight:700; font-size:0.75rem;">${escapeHtml(p.utr)}</code>`
+            : '<span style="color:var(--text-muted); font-size:0.75rem;">-</span>';
+
+          return `
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">${createdAt}</td>
+              <td style="padding:10px 14px; font-size:0.82rem; font-weight:700; color:var(--text-heading);">
+                ${escapeHtml(p.orderId || p.id.slice(0, 8))}
+              </td>
+              <td style="padding:10px 14px; font-size:0.88rem; font-weight:800; color:#38bdf8;">
+                ₹${amount}
+              </td>
+              <td style="padding:10px 14px; font-size:0.78rem; color:var(--text-muted);">
+                <span class="badge badge-info" style="font-size:0.7rem;">${escapeHtml(p.method || 'UPI')}</span>
+              </td>
+              <td style="padding:10px 14px;">
+                ${statusBadge}
+              </td>
+              <td style="padding:10px 14px;">
+                ${utrDisplay}
+              </td>
+              <td style="padding:10px 14px; text-align:right;">
+                <div style="display:inline-flex; gap:0.4rem;">
+                  <button type="button" class="btn btn-secondary" onclick="copySpecificPaymentLink('${canonicalLink}')" style="font-size:0.72rem; padding:0.25rem 0.55rem;" title="Copy Checkout Link">
+                    📋 Copy
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="window.open('${canonicalLink}', '_blank')" style="font-size:0.72rem; padding:0.25rem 0.55rem;" title="Open in New Tab">
+                    🚀 Open
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="previewCurrentPaymentLinkModal('${canonicalLink}')" style="font-size:0.72rem; padding:0.25rem 0.55rem;" title="Preview Checkout Modal">
+                    👁️ View
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#ef4444;">Failed to load payment links: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
     // --- TRANSACTIONS LEDGER ---
     async function fetchPaymentsLedger() {
       try {
@@ -4769,6 +5344,106 @@
         `;
         }).join('');
       } catch (e) { }
+    }
+
+    // --- SUPER ADMIN CLIENTS & MERCHANTS DIRECTORY ---
+    let cachedAdminClients = [];
+
+    async function loadAdminClients() {
+      const tbody = document.getElementById('adminClientsTableBody');
+      const countEl = document.getElementById('adminTotalClientsCount');
+      if (!tbody) return;
+
+      try {
+        const token = localStorage.getItem('youpi_auth_token') || ADMIN_TOKEN || '';
+        const res = await fetch(`${API_BASE}/api/v1/admin/clients`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#f87171;">Super Admin authorization required to view client directory.</td></tr>';
+          return;
+        }
+
+        const data = await res.json();
+        cachedAdminClients = data.clients || [];
+        if (countEl) countEl.textContent = cachedAdminClients.length;
+        renderAdminClients(cachedAdminClients);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#f87171;">Failed to load client directory: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    function renderAdminClients(clients) {
+      const tbody = document.getElementById('adminClientsTableBody');
+      if (!tbody) return;
+
+      if (!clients || clients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">No clients registered yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = clients.map(c => {
+        const userBadges = (c.users && c.users.length > 0)
+          ? c.users.map(u => `<div style="font-size:0.75rem; margin-bottom:2px;"><strong style="color:#f1f5f9;">${escapeHtml(u.name)}</strong> (${escapeHtml(u.email)}) <span class="badge ${u.role === 'SUPER_ADMIN' ? 'badge-primary' : 'badge-neutral'}" style="font-size:0.65rem;">${u.role}</span></div>`).join('')
+          : '<span style="color:var(--text-dim); font-size:0.75rem;">None</span>';
+
+        return `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:12px 14px;">
+              <strong style="color:#f8fafc; font-size:0.92rem;">${escapeHtml(c.businessName)}</strong>
+              <div style="font-family:monospace; font-size:0.75rem; color:#60a5fa; margin-top:2px;">slug: ${escapeHtml(c.slug)}</div>
+            </td>
+            <td style="padding:12px 14px; font-size:0.82rem;">
+              <div style="color:#cbd5e1;">${escapeHtml(c.contactEmail)}</div>
+              <div style="color:var(--text-dim); font-size:0.75rem;">${escapeHtml(c.contactPhone || 'N/A')}</div>
+            </td>
+            <td style="padding:12px 14px;">
+              <code style="color:#34d399; font-weight:700; background:rgba(16,185,129,0.1); padding:3px 8px; border-radius:6px; font-size:0.8rem;">
+                ${escapeHtml(c.activeVpa || 'None')}
+              </code>
+            </td>
+            <td style="padding:12px 14px; font-size:0.84rem;">
+              <div><strong style="color:#10b981;">₹${escapeHtml(c.totalSuccessRupees || '0.00')}</strong></div>
+              <div style="color:var(--text-dim); font-size:0.74rem;">${c.totalSessions || 0} sessions</div>
+            </td>
+            <td style="padding:12px 14px; font-size:0.76rem; font-family:monospace;">
+              <div style="color:#94a3b8;" title="${escapeHtml(c.webhookSecret)}">secret: ${escapeHtml(c.webhookSecret ? c.webhookSecret.slice(0, 14) + '...' : 'None')}</div>
+              <div style="color:var(--text-dim); font-size:0.72rem; max-width:180px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.webhookUrl || 'No webhook set')}</div>
+            </td>
+            <td style="padding:12px 14px;">
+              ${userBadges}
+            </td>
+            <td style="padding:12px 14px; font-size:0.76rem; color:var(--text-dim);">
+              ${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'N/A'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminClients(query) {
+      const q = (query || '').toLowerCase().trim();
+      if (!q) {
+        renderAdminClients(cachedAdminClients);
+        return;
+      }
+      const filtered = cachedAdminClients.filter(c => 
+        (c.businessName && c.businessName.toLowerCase().includes(q)) ||
+        (c.slug && c.slug.toLowerCase().includes(q)) ||
+        (c.contactEmail && c.contactEmail.toLowerCase().includes(q)) ||
+        (c.activeVpa && c.activeVpa.toLowerCase().includes(q))
+      );
+      renderAdminClients(filtered);
+    }
+
+    async function logoutAdmin() {
+      try {
+        await fetch('/api/v1/auth/logout', { method: 'POST' });
+      } catch {}
+      localStorage.removeItem('youpi_auth_token');
+      localStorage.removeItem('youpi_user');
+      window.location.href = '/login';
     }
 
     // --- WHITE-LABEL BRANDING & SMARTPHONE PREVIEW ---
@@ -4940,9 +5615,10 @@
           setVal('settingTermsUrl', branding.termsUrl);
 
           // Canonical Cloudflare Configuration & Environment
-          currentEnvMode = branding.envMode || mData.envMode || 'localhost';
+          const isRemoteHost = window.location.hostname && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+          currentEnvMode = isRemoteHost ? 'production' : (branding.envMode || mData.envMode || 'localhost');
           currentDomainPrefix = branding.deploymentPrefix || branding.domainPrefix || mData.deploymentPrefix || mData.domainPrefix || 'pay';
-          currentDomainTld = branding.cloudflareDomain || branding.domainTld || mData.cloudflareDomain || mData.domainTld || '';
+          currentDomainTld = branding.cloudflareDomain || branding.domainTld || mData.cloudflareDomain || mData.domainTld || (isRemoteHost ? window.location.hostname : '');
 
           setVal('settingDomainPrefix', currentDomainPrefix);
           setVal('settingDomainTld', currentDomainTld);
@@ -5205,12 +5881,15 @@
 
     // --- CANONICAL CLOUDFLARE TUNNEL ROUTING ---
     function getCalculatedDomainUrl() {
+      if (window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1')) {
+        return window.location.origin;
+      }
       const prefix = (document.getElementById('settingDomainPrefix')?.value || currentDomainPrefix || 'pay').trim().toLowerCase();
       const tld = (document.getElementById('settingDomainTld')?.value || currentDomainTld || '').trim().toLowerCase();
       if (currentEnvMode === 'production' && tld) {
         return `https://${prefix}.${tld}`;
       }
-      return 'http://localhost:7000';
+      return window.location.origin || 'http://localhost:7000';
     }
 
     function setEnvMode(mode, save = true) {
@@ -5671,6 +6350,12 @@
           throw new Error(data.error || 'Failed to generate Google Authorization URL');
         }
 
+        if (!data.clientId || data.clientId.includes('your-client-id') || data.clientId.length < 20) {
+          if (banner) banner.style.display = 'none';
+          alert('⚠️ Google OAuth Client ID is not configured yet!\n\nPlease enter your Google OAuth Client ID and Secret under "⚙️ Advanced OAuth Credentials" below and click "Save Manual Credentials" before connecting.\n\n(Tip: If you do not want to set up Google Cloud, you can simply use the Android Companion APK or WhatsApp observer instead!)');
+          return;
+        }
+
         const w = 560;
         const h = 680;
         const left = window.screen.width ? (window.screen.width - w) / 2 : 100;
@@ -6087,7 +6772,9 @@
         });
         adminSse.onerror = () => {
           adminSse.close();
-          setTimeout(connectAdminEventsSse, 3000);
+          if (window.__youpiAdminAuth.token()) {
+            setTimeout(connectAdminEventsSse, 8000);
+          }
         };
       } catch (e) { }
     }
@@ -7669,25 +8356,44 @@
       }
     });
 
+    const isUserMerchant = CURRENT_USER && CURRENT_USER.role === 'MERCHANT';
+
     fetchGatewaySettings();
     fetchObserversStatus();
     fetchWhatsAppStatus();
-    loadServices();
-    fetchFalseNarrativeStatus();
-    fetchTestModeStatus();
-    connectServicesLogsSse();
-    connectAdminEventsSse();
     pollGlobalCounterPending();
 
     pollingTimer = setInterval(fetchLiveData, 2500);
     setInterval(pollGlobalCounterPending, 4000);
-    setInterval(fetchTunnelStatus, 4000);
     setInterval(fetchWhatsAppStatus, 4000);
     setInterval(fetchSmsGatewayDevices, 3500);
-    setInterval(loadServices, 5000);
-    setInterval(fetchFalseNarrativeStatus, 15000);
-    setInterval(fetchTestModeStatus, 15000);
+
+    if (!isUserMerchant) {
+      loadServices();
+      fetchFalseNarrativeStatus();
+      fetchTestModeStatus();
+      connectServicesLogsSse();
+      connectAdminEventsSse();
+      setInterval(fetchTunnelStatus, 4000);
+      setInterval(loadServices, 5000);
+      setInterval(fetchFalseNarrativeStatus, 15000);
+      setInterval(fetchTestModeStatus, 15000);
+    }
   </script>
+
+  <!-- Live Checkout Preview Modal (Razorpay Modal Simulator) -->
+  <div id="checkoutPreviewModal" style="display:none; position:fixed; inset:0; z-index:2147483647; background:rgba(15,23,42,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#0b0f19; border-radius:16px; border:1px solid rgba(255,255,255,0.12); width:100%; max-width:440px; height:90vh; max-height:720px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.1rem;">📱</span>
+          <strong style="font-size:0.88rem; color:#fff;">Live Checkout Preview</strong>
+        </div>
+        <button type="button" onclick="closeCheckoutPreviewModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer; line-height:1;">✕</button>
+      </div>
+      <iframe id="checkoutPreviewIframe" src="about:blank" style="flex:1; width:100%; border:none; background:#0b0f19;"></iframe>
+    </div>
+  </div>
 
 </body>
 

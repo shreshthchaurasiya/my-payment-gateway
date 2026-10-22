@@ -514,6 +514,167 @@
       gap: 4px;
     }
 
+    /* --- 4A. RAZORPAY-STYLE UPI INTENT APP BUTTONS (1-TAP MOBILE PAY) --- */
+    .ypg-intent-section {
+      margin-bottom: 14px;
+    }
+
+    .ypg-intent-header {
+      margin-bottom: 10px;
+    }
+
+    .ypg-intent-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ypg-text-dark);
+      letter-spacing: -0.2px;
+    }
+
+    .ypg-intent-subtitle {
+      font-size: 11px;
+      color: var(--ypg-text-muted);
+      margin-top: 2px;
+    }
+
+    .ypg-intent-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ypg-intent-btn {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--ypg-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .ypg-intent-btn:hover {
+      border-color: var(--ypg-blue);
+      background: #f8fafc;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(11, 99, 229, 0.08);
+    }
+
+    .ypg-intent-btn:active {
+      transform: scale(0.985);
+      background: #f1f5f9;
+    }
+
+    .ypg-intent-logo-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      padding: 3px;
+    }
+
+    .ypg-intent-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .ypg-intent-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ypg-intent-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ypg-intent-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ypg-text-dark);
+    }
+
+    .ypg-intent-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1.5px 6px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .ypg-intent-tag.recommended {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+
+    .ypg-intent-desc {
+      font-size: 11px;
+      color: var(--ypg-text-muted);
+    }
+
+    .ypg-intent-pay-action {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ypg-blue);
+      flex-shrink: 0;
+    }
+
+    .ypg-intent-chevron {
+      color: #94a3b8;
+      transition: transform 0.18s ease;
+    }
+
+    .ypg-intent-btn:hover .ypg-intent-chevron {
+      color: var(--ypg-blue);
+      transform: translateX(2px);
+    }
+
+    /* OR DIVIDER */
+    .ypg-intent-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 14px 0 12px 0;
+      color: #94a3b8;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .ypg-intent-divider::before,
+    .ypg-intent-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--ypg-border);
+    }
+
+    .ypg-intent-divider span {
+      padding: 0 10px;
+    }
+
     /* --- 4. CORE UPI QR CARD (STRICTLY UPI ONLY) --- */
     .ypg-qr-card-container {
       background: #f8fafc;
@@ -3509,19 +3670,120 @@
                   </div>
                 </div>
 
+                <!-- Razorpay-Style 1-Tap Mobile UPI Intent Section -->
+                <div class="ypg-intent-section" id="ypgIntentSection">
+                  <div class="ypg-intent-header">
+                    <div class="ypg-intent-title">Pay using UPI App</div>
+                    <div class="ypg-intent-subtitle">Tap below to open your installed UPI app and complete payment</div>
+                  </div>
+
+                  <div class="ypg-intent-grid">
+                    <!-- PhonePe -->
+                    <button type="button" class="ypg-intent-btn" onclick="openUpiApp('phonepe')" id="intentBtnPhonepe">
+                      <div class="ypg-intent-logo-box">
+                        <img src="/icons/phonepe.png" alt="PhonePe" onerror="if(window.FALLBACK_ICONS)this.src=window.FALLBACK_ICONS.phonepe" />
+                      </div>
+                      <div class="ypg-intent-info">
+                        <div class="ypg-intent-title-row">
+                          <span class="ypg-intent-name">PhonePe</span>
+                          <span class="ypg-intent-tag recommended">Instant</span>
+                        </div>
+                        <span class="ypg-intent-desc">Pay directly via PhonePe UPI</span>
+                      </div>
+                      <div class="ypg-intent-pay-action">
+                        <span>Pay ₹{{AMOUNT}}</span>
+                        <svg class="ypg-intent-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </div>
+                    </button>
+
+                    <!-- Google Pay -->
+                    <button type="button" class="ypg-intent-btn" onclick="openUpiApp('gpay')" id="intentBtnGpay">
+                      <div class="ypg-intent-logo-box">
+                        <img src="/icons/gpay.png" alt="Google Pay" onerror="if(window.FALLBACK_ICONS)this.src=window.FALLBACK_ICONS.gpay" />
+                      </div>
+                      <div class="ypg-intent-info">
+                        <div class="ypg-intent-title-row">
+                          <span class="ypg-intent-name">Google Pay</span>
+                        </div>
+                        <span class="ypg-intent-desc">Pay directly via Google Pay GPay</span>
+                      </div>
+                      <div class="ypg-intent-pay-action">
+                        <span>Pay ₹{{AMOUNT}}</span>
+                        <svg class="ypg-intent-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </div>
+                    </button>
+
+                    <!-- Paytm -->
+                    <button type="button" class="ypg-intent-btn" onclick="openUpiApp('paytm')" id="intentBtnPaytm">
+                      <div class="ypg-intent-logo-box">
+                        <img src="/icons/paytm.png" alt="Paytm" onerror="if(window.FALLBACK_ICONS)this.src=window.FALLBACK_ICONS.paytm" />
+                      </div>
+                      <div class="ypg-intent-info">
+                        <div class="ypg-intent-title-row">
+                          <span class="ypg-intent-name">Paytm</span>
+                        </div>
+                        <span class="ypg-intent-desc">Pay via Paytm UPI or Wallet</span>
+                      </div>
+                      <div class="ypg-intent-pay-action">
+                        <span>Pay ₹{{AMOUNT}}</span>
+                        <svg class="ypg-intent-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </div>
+                    </button>
+
+                    <!-- Other UPI Apps (CRED, BHIM, Navi, etc.) -->
+                    <button type="button" class="ypg-intent-btn" onclick="openUpiApp('generic')" id="intentBtnOther">
+                      <div class="ypg-intent-logo-box" style="background:#eef2ff;">
+                        <img src="/icons/upi.svg" alt="Other UPI" style="width:24px; height:auto;" />
+                      </div>
+                      <div class="ypg-intent-info">
+                        <div class="ypg-intent-title-row">
+                          <span class="ypg-intent-name">CRED / BHIM / Other UPI</span>
+                        </div>
+                        <span class="ypg-intent-desc">Open installed app selector</span>
+                      </div>
+                      <div class="ypg-intent-pay-action">
+                        <span>Pay ₹{{AMOUNT}}</span>
+                        <svg class="ypg-intent-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- OR DIVIDER -->
+                <div class="ypg-intent-divider">
+                  <span>OR SCAN QR CODE</span>
+                </div>
+
                 <!-- Core UPI QR Card -->
-                <div class="ypg-qr-card-container">
+                <div class="ypg-qr-card-container" id="ypgQrCardContainer">
                   <!-- Left: QR Box -->
                   <div class="ypg-qr-image-box" id="qrImageContainer">
                     <div style="font-size:11px; color:#94a3b8; text-align:center;">Loading QR...</div>
                   </div>
 
-                  <!-- Right: Prompt, UPI App Logos -->
+                  <!-- Right: Prompt, VPA copy, UPI App Logos -->
                   <div class="ypg-qr-details-col">
-                    <div class="ypg-qr-prompt-title">Scan the QR using any UPI App</div>
+                    <div class="ypg-qr-prompt-title">Scan QR using any UPI App</div>
 
-                    <!-- Brand Logos Row (Zero Fake Offers) -->
-                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:3px 0 6px 0;">
+                    <!-- Payee VPA & Action Buttons -->
+                    <div class="ypg-vpa-copy-row" style="flex-wrap:wrap; gap:4px;">
+                      <span class="ypg-vpa-badge" id="displayVpaVal">{{VPA}}</span>
+                      <button type="button" class="ypg-btn-mini-copy" id="btnCopyVpa" onclick="copyVpaId()" title="Copy UPI ID">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span id="copyVpaText">Copy UPI</span>
+                      </button>
+                      <button type="button" class="ypg-btn-mini-copy" id="btnCopyMobile" onclick="copyMobileNum()" title="Copy Mobile Number">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                        <span id="copyMobileText">Copy No.</span>
+                      </button>
+                      <button type="button" class="ypg-btn-mini-copy" id="btnSaveQr" onclick="downloadQrCode()" title="Save QR to Gallery">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Save QR</span>
+                      </button>
+                    </div>
+
+                    <!-- Brand Logos Row -->
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:2px 0 4px 0;">
                       <div class="ypg-upi-logos-row">
                         <div class="ypg-app-icon" title="Google Pay"><img src="/icons/gpay.png"
                             onerror="if(window.FALLBACK_ICONS)this.src=window.FALLBACK_ICONS.gpay" alt="GPay" /></div>
@@ -3541,7 +3803,7 @@
                     </div>
 
                     <div style="font-size:12px; color:#64748b; line-height:1.4;">
-                      Open any UPI app on your phone to scan and pay directly.
+                      Open any UPI app to scan and pay directly.
                     </div>
                   </div>
                 </div>
@@ -6329,6 +6591,127 @@
           text.textContent = 'Copied!';
           setTimeout(() => { text.textContent = 'Copy'; }, 2000);
         });
+      }
+    }
+
+    function copyMobileNum() {
+      const num = '8853921178';
+      const text = document.getElementById('copyMobileText');
+      navigator.clipboard.writeText(num).then(() => {
+        if (text) text.textContent = 'Copied!';
+        showOptionToast('Mobile Number 8853921178 copied!');
+        setTimeout(() => { if (text) text.textContent = 'Copy No.'; }, 2000);
+      }).catch(() => {
+        if (text) text.textContent = 'Copied!';
+        setTimeout(() => { if (text) text.textContent = 'Copy No.'; }, 2000);
+      });
+    }
+
+    function downloadQrCode() {
+      const qrSvg = document.querySelector('#qrImageContainer svg');
+      if (!qrSvg) {
+        showOptionToast('QR Code still loading...');
+        return;
+      }
+      const svgData = new XMLSerializer().serializeToString(qrSvg);
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 400, 400);
+        ctx.drawImage(img, 20, 20, 360, 360);
+        const a = document.createElement('a');
+        a.download = `UPI-QR-Pay-${PAYMENT_ID.slice(0, 8)}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        showOptionToast('QR Saved! In Paytm/PhonePe choose "Scan from Gallery".');
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
+
+    // --- 1-TAP MOBILE UPI INTENT REDIRECTION (CLEAN P2P / ZERO-RISK PARAMS) ---
+    function openUpiApp(targetApp) {
+      const vpa = (state && (state.payeeVpa || state.vpa)) || "{{VPA}}";
+      const amount = (state && state.amount) || "{{AMOUNT}}";
+      const payeeName = (state && (state.payeeName || state.payee_name)) || 'Ruma Devi Chaurasiya';
+
+      // Authentic P2P parameters: NEVER include tr or commercial notes on personal/counter VPAs
+      // as NPCI / Paytm Protect flags commercial tags on personal handles as risk/phishing.
+      const query = 'pa=' + encodeURIComponent(vpa)
+        + '&pn=' + encodeURIComponent(payeeName)
+        + '&am=' + encodeURIComponent(amount)
+        + '&cu=INR';
+
+      const genericUri = 'upi://pay?' + query;
+      let targetUri = genericUri;
+
+      let appDisplayName = 'UPI App';
+      if (targetApp === 'phonepe') {
+        targetUri = 'phonepe://pay?' + query;
+        appDisplayName = 'PhonePe';
+      } else if (targetApp === 'paytm') {
+        targetUri = 'paytmmp://pay?' + query;
+        appDisplayName = 'Paytm';
+      } else if (targetApp === 'gpay') {
+        targetUri = 'gpay://upi/pay?' + query;
+        appDisplayName = 'Google Pay';
+      }
+
+      openProcessingModal(
+        'Opening ' + appDisplayName + '...',
+        'Complete payment of ₹' + amount + ' in ' + appDisplayName + ' and return here. We are waiting for bank confirmation.'
+      );
+
+      triggerUpiDeepLink(targetUri, genericUri);
+    }
+
+    function triggerUpiDeepLink(primaryUri, fallbackUri) {
+      // 1. If embedded in iframe, request parent top navigation
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ event: 'youpi.open_upi_url', url: primaryUri }, '*');
+        }
+      } catch (e) {}
+
+      // 2. Also attempt direct link click with target="_top"
+      try {
+        const a = document.createElement('a');
+        a.href = primaryUri;
+        a.target = '_top';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (e) {
+        try {
+          window.location.href = primaryUri;
+        } catch (err) {}
+      }
+
+      // 3. Fallback to generic upi:// if primary was app-specific scheme and didn't open after short delay
+      if (fallbackUri && primaryUri !== fallbackUri) {
+        setTimeout(() => {
+          if (document.hasFocus()) {
+            try {
+              if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ event: 'youpi.open_upi_url', url: fallbackUri }, '*');
+              }
+            } catch (e) {}
+            try {
+              const a = document.createElement('a');
+              a.href = fallbackUri;
+              a.target = '_top';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            } catch (err) {
+              window.location.href = fallbackUri;
+            }
+          }
+        }, 1400);
       }
     }
 
