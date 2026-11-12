@@ -65,7 +65,32 @@ export class Database {
           ? process.env.SQLITE_DB_PATH
           : path.resolve(repoRoot, process.env.SQLITE_DB_PATH);
       } else {
-        dbPath = path.resolve(repoRoot, 'data/youpi_pg.sqlite');
+        // Auto-detect Hostinger / cPanel persistent user home (e.g. /home/u152059793)
+        // hbuilds/versions/* is ephemeral and recreated on every deployment.
+        // Storing the SQLite file in ~/youpi_data/ keeps it 100% persistent across code updates!
+        const homeDir = process.env.HOME || '';
+        const isHostinger = homeDir.startsWith('/home/u') || process.env.HOSTINGER === 'true';
+        if (isHostinger) {
+          const hostingerDataDir = path.join(homeDir, 'youpi_data');
+          dbPath = path.join(hostingerDataDir, 'youpi_pg.sqlite');
+          const bundledDb = path.resolve(repoRoot, 'data/youpi_pg.sqlite');
+          if (!fs.existsSync(dbPath)) {
+            try {
+              if (!fs.existsSync(hostingerDataDir)) {
+                fs.mkdirSync(hostingerDataDir, { recursive: true });
+              }
+              if (fs.existsSync(bundledDb)) {
+                fs.copyFileSync(bundledDb, dbPath);
+                console.log(`[Database] Auto-seeded persistent database to ${dbPath}`);
+              }
+            } catch (e) {
+              console.warn('[Database] Could not write to persistent home, falling back to local data/ folder:', e.message);
+              dbPath = bundledDb;
+            }
+          }
+        } else {
+          dbPath = path.resolve(repoRoot, 'data/youpi_pg.sqlite');
+        }
       }
       const dir = path.dirname(dbPath);
       if (!fs.existsSync(dir)) {

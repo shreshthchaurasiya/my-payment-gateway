@@ -98,7 +98,7 @@
           <span class="cf-nav-icon">🔑</span>
           <span class="cf-nav-label">API Keys &amp; Webhooks</span>
         </button>
-        <button class="cf-nav-item" data-sec="developerHub" data-sub="subViewDevSimulator" onclick="navigateTo('developerHub', 'subViewDevSimulator')">
+        <button class="cf-nav-item admin-only" data-sec="developerHub" data-sub="subViewDevSimulator" onclick="navigateTo('developerHub', 'subViewDevSimulator')">
           <span class="cf-nav-icon">🎮</span>
           <span class="cf-nav-label">Bank SMS Simulator</span>
         </button>
@@ -969,7 +969,7 @@
                       <div style="font-size:17px; font-weight:900; color:#0f172a; margin-top:2px;">₹1,500.00</div>
                     </div>
                     <span
-                      style="background:#eff6ff; color:#2563eb; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px;">Direct
+                      style="background:#f5f3ff; color:#7c3aed; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px;">Direct
                       UPI</span>
                   </div>
 
@@ -1004,7 +1004,7 @@
                       <div style="font-size:13px; font-weight:800; color:#ffffff;">₹1,500.00</div>
                     </div>
                     <span id="mockupCtaButton"
-                      style="background:#2563eb; color:#ffffff; font-size:10.5px; font-weight:800; padding:5px 12px; border-radius:6px;">Continue
+                      style="background:linear-gradient(135deg, #7c3aed, #6366f1); color:#ffffff; font-size:10.5px; font-weight:800; padding:5px 12px; border-radius:6px; box-shadow:0 2px 8px rgba(124,58,237,0.35);">Continue
                       &rsaquo;</span>
                   </div>
                 </div>
@@ -1268,7 +1268,7 @@
                 <h2 style="margin:0; font-size:1.35rem; color:#0f172a; font-weight:800;">Developer Tools → Payment
                   Simulator</h2>
                 <span class="badge"
-                  style="background:#2563eb; color:#ffffff; font-size:0.75rem; padding:0.25rem 0.65rem;">DEVELOPER
+                  style="background:linear-gradient(135deg, #7c3aed, #6366f1); color:#ffffff; font-size:0.75rem; padding:0.25rem 0.65rem;">DEVELOPER
                   TESTING ONLY</span>
               </div>
               <p
@@ -1428,7 +1428,7 @@
             </div>
 
             <button id="simBtnPushSms" class="btn btn-primary" onclick="simInjectObservation('SMS')"
-              style="width:100%; background:#2563eb; border-color:#1d4ed8; padding:0.65rem; font-size:0.92rem; font-weight:800; display:flex; justify-content:center; align-items:center; gap:0.5rem;">
+              style="width:100%; background:linear-gradient(135deg, #7c3aed, #6366f1); border-color:#6d28d9; padding:0.65rem; font-size:0.92rem; font-weight:800; display:flex; justify-content:center; align-items:center; gap:0.5rem; box-shadow:0 4px 14px rgba(124,58,237,0.3);">
               <span>🚀</span> PUSH SMS TO STREAM
             </button>
           </div>
@@ -1705,7 +1705,7 @@
               <!-- Custom SMS Input Area (Section 11D) -->
               <div style="background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:1.1rem; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                  <strong style="color:#2563eb; font-size:0.92rem; display:flex; align-items:center; gap:0.4rem;">
+                  <strong style="color:#7c3aed; font-size:0.92rem; display:flex; align-items:center; gap:0.4rem;">
                     📱 SMS Test Message
                   </strong>
                   <input type="text" id="inputTestSmsSender" placeholder="Sender (e.g. VM-HDFCBK)" value="VM-HDFCBK"
@@ -1717,7 +1717,7 @@
                 <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:0.72rem; color:#64748b;">Preserved verbatim as <code>raw</code></span>
                   <button class="btn btn-primary" id="btnInjectSms" onclick="injectTestMessage('SMS')"
-                    style="background:#2563eb; border-color:#1d4ed8; font-size:0.82rem; padding:0.45rem 1rem;">
+                    style="background:linear-gradient(135deg, #7c3aed, #6366f1); border-color:#6d28d9; font-size:0.82rem; padding:0.45rem 1rem; box-shadow:0 4px 14px rgba(124,58,237,0.3);">
                     🚀 Inject Test SMS
                   </button>
                 </div>
@@ -2259,7 +2259,7 @@
         </div>
 
         <!-- 2. WEBHOOK ENDPOINT CONFIGURATION & SECRETS -->
-        <div class="card" style="border-left: 4px solid var(--primary, #2563eb); margin-bottom: 1.5rem;">
+        <div class="card" style="border-left: 4px solid var(--primary, #7c3aed); margin-bottom: 1.5rem;">
           <div class="card-header">
             <div>
               <div class="card-heading">🔐 Webhook Endpoints &amp; Cryptographic Secrets</div>
@@ -2484,7 +2484,7 @@
                 <div style="display:flex; gap:0.5rem; align-items:center;">
                   <button type="button" id="btnGooglePrimaryAuth" class="btn btn-primary"
                     onclick="startAutomatedGoogleAuth()"
-                    style="display:inline-flex; align-items:center; gap:0.6rem; padding:0.65rem 1.25rem; font-size:0.9rem; font-weight:700; background:#2563eb; color:#fff; border:none; border-radius:0.5rem; cursor:pointer; box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+                    style="display:inline-flex; align-items:center; gap:0.6rem; padding:0.65rem 1.25rem; font-size:0.9rem; font-weight:700; background:linear-gradient(135deg, #7c3aed, #6366f1); color:#fff; border:none; border-radius:0.5rem; cursor:pointer; box-shadow:0 4px 14px rgba(124,58,237,0.4);">
                     <svg width="18" height="18" viewBox="0 0 24 24">
                       <path fill="#ffffff"
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

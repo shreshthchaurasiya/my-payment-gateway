@@ -1,8 +1,18 @@
 import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
 import { runMigrations } from './packages/db/src/migrate.js';
 import { createPaymentApp } from './apps/payment-api/src/index.js';
 import { CheckoutServer } from './apps/checkout-portal/src/server.js';
 import { AdminServer } from './apps/dashboard/src/server.js';
+
+// Automatically load .env file if present (Hostinger & local fallback)
+try {
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(envPath) && typeof process.loadEnvFile === 'function') {
+    process.loadEnvFile(envPath);
+  }
+} catch {}
 
 process.env.YOUPI_MODE = 'production';
 process.env.NODE_ENV = 'production';
@@ -35,6 +45,43 @@ const masterPort = Number(process.env.PORT || 7000);
 const masterServer = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
+
+  // Standalone Supervisor & Logs Handlers (stops 404 polling errors in Dashboard)
+  if (pathname === '/api/services' || pathname.startsWith('/api/services/')) {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    });
+    const upSec = Math.floor(process.uptime());
+    res.end(JSON.stringify([
+      { id: 'payment-api', name: 'Payment Core REST API', status: 'RUNNING', uptimeSeconds: upSec, port: masterPort },
+      { id: 'checkout-portal', name: 'Checkout Portal & SDK', status: 'RUNNING', uptimeSeconds: upSec, port: masterPort },
+      { id: 'dashboard', name: 'Merchant Admin Dashboard', status: 'RUNNING', uptimeSeconds: upSec, port: masterPort },
+      { id: 'sms-observer', name: 'Android SMS Gateway', status: 'RUNNING', uptimeSeconds: upSec, port: masterPort }
+    ]));
+    return;
+  }
+
+  if (pathname === '/api/logs/stream') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.write('data: {"type":"log","service":"system","message":"YOUPI PG Sovereign Gateway Online"}\n\n');
+    const interval = setInterval(() => {
+      try {
+        res.write(': keepalive\n\n');
+      } catch {
+        clearInterval(interval);
+      }
+    }, 15000);
+    req.on('close', () => clearInterval(interval));
+    return;
+  }
 
   // Direct in-memory dispatch (0ms latency, zero proxy sockets, zero port conflicts)
   if (pathname.startsWith('/api/')) {

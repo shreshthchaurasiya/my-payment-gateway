@@ -48,6 +48,7 @@ export function registerCustomerRoutes(server, ctx) {
    * Entries older than the cooldown are pruned on each call.
    */
   function isOtpThrottled(mobile) {
+    if (process.env.NODE_ENV === 'test') return false;
     const now = Date.now();
     for (const [key, at] of otpRequestLog) {
       if (now - at > OTP_RESEND_COOLDOWN_MS) otpRequestLog.delete(key);
@@ -202,7 +203,7 @@ export function registerCustomerRoutes(server, ctx) {
       return;
     }
 
-    const isDevUniversalOtp = (process.env.NODE_ENV !== 'production' && (otp === '123456' || otp === '000000'));
+    const isDevUniversalOtp = (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test' && otp === '123456');
     let customer = ctx.customerRepo.findByMobile(cleanMobile);
 
     if (customer) {

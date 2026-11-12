@@ -38,13 +38,17 @@ if (!fs.existsSync(TARGET_DIR)) {
 
 // Top-level files to explicitly include from root
 const ROOT_FILES_TO_INCLUDE = new Set([
+  'server.js',
   'package.json',
+  'package-lock.json',
   'tsconfig.json',
   'tsconfig.base.json',
   'README.md',
   'ARCHITECTURE.md',
   'openapi.yaml',
   'AGENTS.md',
+  'hostinger.env',
+  'hostinger-full.env',
   '.env.example',
   '.gitignore'
 ]);

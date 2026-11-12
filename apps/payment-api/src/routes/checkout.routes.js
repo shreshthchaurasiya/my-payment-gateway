@@ -98,6 +98,21 @@ function checkSessionDeviceAccess(session, req, body = null, ctx = null) {
  * If either is missing, unconfigured, or offline, status is ISSUES with downtime warning.
  */
 async function checkUpiServerHealth(ctx, enabledMethods = [], sellingMode = 'OFFLINE', merchantId = '00000000-0000-0000-0000-000000000001') {
+  // Optional Production / Dev override via environment variable or merchant setting
+  if (process.env.DEFAULT_UPI_HEALTH === 'GREEN') {
+    return {
+      status: 'WORKING',
+      tier: 'GREEN',
+      label: 'Server Is Working',
+      isWorking: true,
+      reason: 'UPI Server Operational (Health Forced: GREEN)',
+      smsHealthy: true,
+      gmailHealthy: true,
+      warning: null,
+      recommendedAlternative: null
+    };
+  }
+
   // 0. Check False Narrative Dev Switch (Active for 10 minutes from enabling time)
   try {
     const merchant = ctx.merchantRepo?.findById ? ctx.merchantRepo.findById(merchantId) : null;

@@ -430,23 +430,22 @@ export function registerPollerRoutes(server, ctx) {
     const merchantId = merchant ? merchant.id : (req.query.merchantId || '00000000-0000-0000-0000-000000000001');
 
     // Canonical runtime URL derivation (Part C2)
-    const runtime = resolveRuntimeUrls(merchant?.branding || {});
-    let baseUrl = runtime.apiUrl;
-    if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+    let baseUrl = process.env.BASE_PAYMENT_API_URL || '';
+    if (!baseUrl) {
+      try {
+        const runtime = resolveRuntimeUrls(merchant?.branding || {});
+        baseUrl = runtime.apiUrl;
+      } catch {
+        baseUrl = '';
+      }
+    }
+    if (!baseUrl || baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
       const hostHeader = (req.headers['x-forwarded-host'] || req.headers['host'] || '').split(':')[0];
       if (hostHeader && hostHeader !== 'localhost' && hostHeader !== '127.0.0.1') {
-        baseUrl = `http://${hostHeader}:6100`;
-      } else {
-        const nets = os.networkInterfaces();
-        for (const name of Object.keys(nets)) {
-          for (const net of nets[name] || []) {
-            if (net.family === 'IPv4' && !net.internal) {
-              baseUrl = `http://${net.address}:6100`;
-              break;
-            }
-          }
-          if (!baseUrl.includes('localhost') && !baseUrl.includes('127.0.0.1')) break;
-        }
+        const proto = req.headers['x-forwarded-proto'] || (hostHeader.includes('adshree.com') ? 'https' : 'http');
+        baseUrl = `${proto}://${hostHeader}`;
+      } else if (!baseUrl) {
+        baseUrl = 'https://gateway.adshree.com';
       }
     }
     const token = enrollmentSecret;

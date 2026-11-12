@@ -1431,6 +1431,7 @@ Endpoints Unified Under This Domain:
     }
 
     async function fetchTestModeStatus() {
+      if (window.CURRENT_USER && window.CURRENT_USER.role === 'MERCHANT') return;
       try {
         const res = await fetch(`${API_BASE}/api/v1/admin/dev/test-mode`);
         if (res.ok) {
@@ -1776,12 +1777,14 @@ Endpoints Unified Under This Domain:
     }
 
     async function initPaymentSimulator() {
+      if (window.CURRENT_USER && window.CURRENT_USER.role === 'MERCHANT') return;
       await simCheckTestMode();
       await simFetchCustomers();
       await simFetchHistory();
     }
 
     async function simCheckTestMode() {
+      if (window.CURRENT_USER && window.CURRENT_USER.role === 'MERCHANT') return;
       try {
         const headers = await simGetHeaders();
         const res = await fetch(`${API_BASE}/api/v1/admin/dev/test-mode`, { headers });
@@ -1827,6 +1830,7 @@ Endpoints Unified Under This Domain:
     }
 
     async function simFetchCustomers(searchQuery = '') {
+      if (window.CURRENT_USER && window.CURRENT_USER.role === 'MERCHANT') return;
       const select = document.getElementById('simCustomerSelect');
       if (select) {
         select.innerHTML = '<option value="" disabled selected>Loading existing customers...</option>';
@@ -2233,6 +2237,7 @@ Endpoints Unified Under This Domain:
     }
 
     async function simFetchHistory() {
+      if (window.CURRENT_USER && window.CURRENT_USER.role === 'MERCHANT') return;
       try {
         const headers = await simGetHeaders();
         const res = await fetch(`${API_BASE}/api/v1/admin/dev/simulator/history`, { headers });

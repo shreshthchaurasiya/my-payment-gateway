@@ -7,10 +7,10 @@
   <title>{{MERCHANT_NAME}} · {{APP_NAME}} Checkout</title>
   <style>
     :root {
-      --ypg-blue: #0b63e5;
-      --ypg-blue-dark: #0957cb;
-      --ypg-navy: #0b1526;
-      --ypg-header-gradient: linear-gradient(180deg, #0b63e5 0%, #0957cb 100%);
+      --ypg-blue: #7c3aed;
+      --ypg-blue-dark: #5b21b6;
+      --ypg-navy: #0d091e;
+      --ypg-header-gradient: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
       --ypg-bg: #f8fafc;
       --ypg-card: #ffffff;
       --ypg-text-dark: #0f172a;
@@ -5812,7 +5812,7 @@
 
     function applyDynamicTheme(branding) {
       if (!branding) return;
-      const primary = branding.primaryColor || '#0b63e5';
+      const primary = branding.primaryColor || '#7c3aed';
       const darkPrimary = adjustHexColor(primary, -25);
       const root = document.documentElement;
 

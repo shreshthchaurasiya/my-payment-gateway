@@ -111,13 +111,21 @@ export function resolveRuntimeUrls(options = {}) {
     }
   }
   mode = String(mode).toLowerCase();
-  const domain = (options.domain || options.domainTld || process.env.CLOUDFLARE_DOMAIN || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  let domain = (options.domain || options.domainTld || process.env.CLOUDFLARE_DOMAIN || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
   const prefix = (options.prefix || options.domainPrefix || process.env.DEPLOYMENT_PREFIX || 'pay').trim().toLowerCase().replace(/[^a-z0-9-_]/g, '') || 'pay';
 
   if (mode === 'production') {
     if (!domain) {
       if ((process.env.NODE_ENV === 'test' || process.env.YOUPI_MODE === 'localhost') && options.envMode !== 'production') {
         mode = 'localhost';
+      } else if (process.env.STANDALONE === 'true' || process.env.BASE_PAYMENT_API_URL || process.env.BASE_CHECKOUT_URL) {
+        // Standalone / Hostinger Gateway mode (Single public domain, e.g. gateway.adshree.com)
+        const hostBase = process.env.BASE_PAYMENT_API_URL || process.env.BASE_CHECKOUT_URL || 'https://gateway.adshree.com';
+        try {
+          domain = new URL(hostBase).hostname;
+        } catch {
+          domain = hostBase.replace(/^https?:\/\//, '').split('/')[0];
+        }
       } else {
         throw new Error('Production Configuration Incomplete: Cloudflare Domain is required when running in PRODUCTION mode.');
       }
@@ -125,6 +133,26 @@ export function resolveRuntimeUrls(options = {}) {
   }
 
   if (mode === 'production') {
+    if (process.env.STANDALONE === 'true' || process.env.BASE_PAYMENT_API_URL) {
+      const publicBase = process.env.BASE_PAYMENT_API_URL || `https://${domain}`;
+      return {
+        mode: 'production',
+        isProduction: true,
+        domain,
+        prefix,
+        routes: [],
+        checkoutUrl: process.env.BASE_CHECKOUT_URL || publicBase,
+        checkoutHostname: domain,
+        apiUrl: process.env.BASE_PAYMENT_API_URL || publicBase,
+        apiHostname: domain,
+        adminUrl: process.env.BASE_ADMIN_URL || `${publicBase}/admin`,
+        adminHostname: domain,
+        gmailUrl: process.env.BASE_PAYMENT_API_URL || publicBase,
+        gmailHostname: domain,
+        storeUrl: process.env.BASE_DEMO_STORE_URL || `${publicBase}/store`,
+        storeHostname: domain
+      };
+    }
 
     const routes = deriveCloudflareRoutes({ domain, prefix });
     const getRoute = (role) => routes.find(r => r.role === role);

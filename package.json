@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "echo 'Build OK'",
+    "build:zip": "node scripts/build-hostinger-zip.cjs",
     "clean": "node scripts/clean.js",
     "db:setup": "node scripts/init-db.cjs",
     "sync:package": "node scripts/sync-package.cjs",
