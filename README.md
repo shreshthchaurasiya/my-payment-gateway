@@ -38,9 +38,13 @@
   <a href="#-quickstart-in-60-seconds">Quickstart</a> •
   <a href="#-universal-merchant-integration">Merchant Integration</a> •
   <a href="#-tri-channel-observation-mesh">Banking Observers</a> •
-  <a href="#-port-topology">Port Topology</a> •
+  <a href="AI_AGENT_HANDOFF.md"><strong>AI Agent Context Manual</strong></a> •
   <a href="#-documentation-hub">Docs</a>
 </p>
+
+---
+
+> 🤖 **New Machine / AI Agent Handoff**: If you are an AI Coding Agent or developing on a new machine, read **[AI_AGENT_HANDOFF.md](AI_AGENT_HANDOFF.md)** first for complete architecture, Hostinger deployment guides, permanent database paths, and non-negotiable invariants.
 
 ---
 

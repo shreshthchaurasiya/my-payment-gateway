@@ -28,6 +28,7 @@ const filesToCopy = [
   'README.md',
   'ARCHITECTURE.md',
   'AGENTS.md',
+  'AI_AGENT_HANDOFF.md',
   '.env.example',
   'hostinger.env',
   'hostinger-full.env'
